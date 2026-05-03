@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام طباعة ملصقات الصيدلية - Zebra ZD411</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        
+        /* إعدادات الطباعة المخصصة للملصقات 50 مم × 25 مم */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 50mm;
+            }
+            .label-page {
+                width: 50mm;
+                height: 25mm;
+                padding: 1mm;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                page-break-after: always;
+                overflow: hidden;
+                box-sizing: border-box;
+            }
+            .print-logo {
+                max-height: 5mm;
+                max-width: 40mm;
+                object-fit: contain;
+                margin-bottom: 1px;
+            }
+            .print-text {
+                font-size: 9pt;
+                font-weight: bold;
+                text-align: center;
+                line-height: 1.1;
+                margin-bottom: 1px;
+            }
+            .barcode-img {
+                width: 40mm;
+                height: 8mm;
+            }
+            @page {
+                size: 50mm 25mm;
+                margin: 0;
+            }
+        }
+
+        .inner-shadow {
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-10">
+
+    <div class="max-w-5xl mx-auto px-4 pt-8">
+        <!-- Header -->
+        <header class="bg-emerald-600 text-white rounded-2xl p-6 shadow-md mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 p-3 rounded-xl text-3xl">💊</div>
+                <div>
+                    <h1 class="text-2xl font-bold">نظام طباعة ملصقات الصيدلية</h1>
+                    <p class="text-emerald-100 text-sm">متوافق مع Zebra ZD411 (203dpi)</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="bg-white text-emerald-700 px-6 py-2 rounded-lg font-bold shadow-sm hover:bg-emerald-50 transition flex items-center gap-2">
+                    <span>🖨️</span> طباعة الكل
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Column 1: Input Form -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Logo Setup -->
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <h2 class="font-bold text-gray-700 mb-3 flex items-center gap-2">🖼️ شعار الصيدلية</h2>
+                    <input type="text" id="logo-input" placeholder="أدخل رابط صورة الشعار (URL)..." 
+                           class="w-full border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                           oninput="updateLogoPreview()">
+                    <div id="logo-preview-container" class="mt-3 hidden bg-gray-50 p-2 rounded border border-dashed border-gray-200 text-center">
+                        <img id="logo-preview" src="" class="max-h-12 mx-auto">
+                    </div>
+                </div>
+
+                <!-- Dosage Form -->
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <h2 class="font-bold text-gray-700 mb-4 flex items-center gap-2">➕ إضافة جرعة جديدة</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الكمية</label>
+                                <select id="input-qty" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
+                                    <!-- 1 to 10 -->
+                                    <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الفئة</label>
+                                <select id="input-type" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50" onchange="toggleRouteField()">
+                                    <option value="قرص">قرص</option>
+                                    <option value="كيس">كيس</option>
+                                    <option value="كبسولة">كبسولة</option>
+                                    <option value="معلقة">معلقة</option>
+                                    <option value="لبوسة">لبوسة</option>
+                                    <option value="حقنة">حقنة</option>
+                                    <option value="نقطة">نقطة</option>
+                                    <option value="بخة">بخة</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="route-container" class="hidden">
+                            <label class="block text-xs font-bold text-gray-500 mb-1">التفاصيل (الموضع)</label>
+                            <select id="input-route" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50"></select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">التكرار (كل كم ساعة؟)</label>
+                            <select id="input-frequency" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
+                                <script>
+                                    for(let i=1; i<=24; i++) {
+                                        let label = i === 24 ? "مرة واحدة يومياً (24 ساعة)" : `كل ${i} ساعة`;
+                                        document.write(`<option value="${i}">${label}</option>`);
+                                    }
+                                </script>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">المدة (رقم)</label>
+                                <input type="number" id="input-duration-val" placeholder="مثلاً: 5" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الوحدة</label>
+                                <select id="input-duration-unit" class="w-full border border-gray-200 rounded-lg p-2 bg-gray-50">
+                                    <option value="يوم">يوم</option>
+                                    <option value="أسبوع">أسبوع</option>
+                                    <option value="شهر">شهر</option>
+                                    <option value="سنة">سنة</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="addDosage()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition shadow-md">
+                            إضافة للقائمة
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: List and Preview -->
+            <div class="lg:col-span-7">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col">
+                    <div class="p-4 border-b bg-gray-50/50 flex justify-between items-center">
+                        <h2 class="font-bold text-gray-700">قائمة الملصقات الجاهزة</h2>
+                        <span id="label-count" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-full">0 ملصق</span>
+                    </div>
+                    
+                    <div id="labels-list" class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Labels will appear here -->
+                    </div>
+
+                    <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-gray-400 p-10">
+                        <span class="text-5xl mb-2">📋</span>
+                        <p>القائمة فارغة، قم بإضافة الجرعات من اليمين</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Print Area -->
+    <div id="print-area" class="hidden"></div>
+
+    <script>
+        let dosages = [];
+        const routesMap = {
+            'لبوسة': ['شرجي', 'مهبلي'],
+            'نقطة': ['بالعين', 'بالفم', 'موضعي'],
+            'بخة': ['موضعي', 'بالفم', 'بالأنف', 'بالفروة']
+        };
+
+        function updateLogoPreview() {
+            const url = document.getElementById('logo-input').value;
+            const preview = document.getElementById('logo-preview');
+            const container = document.getElementById('logo-preview-container');
+            
+            if (url) {
+                preview.src = url;
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleRouteField() {
+            const type = document.getElementById('input-type').value;
+            const container = document.getElementById('route-container');
+            const select = document.getElementById('input-route');
+            
+            if (routesMap[type]) {
+                container.classList.remove('hidden');
+                select.innerHTML = routesMap[type].map(r => `<option value="${r}">${r}</option>`).join('');
+            } else {
+                container.classList.add('hidden');
+                select.innerHTML = '';
+            }
+        }
+
+        function addDosage() {
+            const qty = document.getElementById('input-qty').value;
+            const type = document.getElementById('input-type').value;
+            const route = document.getElementById('input-route').value;
+            const freq = document.getElementById('input-frequency').value;
+            const durVal = document.getElementById('input-duration-val').value;
+            const durUnit = document.getElementById('input-duration-unit').value;
+
+            if (!durVal) {
+                alert("يرجى إدخال مدة العلاج");
+                return;
+            }
+
+            const id = Date.now();
+            const dosageText = `${qty} ${type} ${route ? '('+route+')' : ''} كل ${freq} ساعة لمدة ${durVal} ${durUnit}`;
+            const barcode = "RX" + Math.floor(100000 + Math.random() * 900000);
+
+            dosages.push({ id, text: dosageText, barcode });
+            renderLabels();
+            
+            // Reset duration only
+            document.getElementById('input-duration-val').value = '';
+        }
+
+        function removeDosage(id) {
+            dosages = dosages.filter(d => d.id !== id);
+            renderLabels();
+        }
+
+        function renderLabels() {
+            const list = document.getElementById('labels-list');
+            const printArea = document.getElementById('print-area');
+            const emptyState = document.getElementById('empty-state');
+            const countBadge = document.getElementById('label-count');
+            const logoUrl = document.getElementById('logo-input').value;
+
+            list.innerHTML = '';
+            printArea.innerHTML = '';
+            countBadge.innerText = `${dosages.length} ملصق`;
+
+            if (dosages.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                dosages.forEach(item => {
+                    // Create UI Card
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-gray-200 rounded-xl p-3 shadow-sm relative group";
+                    card.innerHTML = `
+                        <button onclick="removeDosage(${item.id})" class="absolute top-2 left-2 text-red-400 opacity-0 group-hover:opacity-100 transition">✕</button>
+                        <div class="text-[10px] text-gray-400 mb-1">الباركود: ${item.barcode}</div>
+                        <div class="text-sm font-bold text-gray-700 mb-2">${item.text}</div>
+                        <div class="bg-gray-50 h-10 flex items-center justify-center border border-dashed rounded">
+                            <span class="text-[8px] text-gray-400 tracking-[0.5em]">||||||||||||||||||||||||</span>
+                        </div>
+                    `;
+                    list.appendChild(card);
+
+                    // Create Print Label
+                    const printLabel = document.createElement('div');
+                    printLabel.className = "label-page";
+                    
+                    let logoImgHtml = logoUrl ? `<img src="${logoUrl}" class="print-logo">` : '';
+                    
+                    printLabel.innerHTML = `
+                        ${logoImgHtml}
+                        <div class="print-text">${item.text}</div>
+                        <svg id="barcode-print-${item.id}" class="barcode-img"></svg>
+                    `;
+                    printArea.appendChild(printLabel);
+
+                    // Generate Real Barcode for Printing
+                    setTimeout(() => {
+                        JsBarcode(`#barcode-print-${item.id}`, item.barcode, {
+                            format: "CODE128",
+                            width: 2,
+                            height: 40,
+                            displayValue: false,
+                            margin: 0
+                        });
+                    }, 10);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
+
