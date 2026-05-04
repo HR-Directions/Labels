@@ -59,46 +59,48 @@
                 padding: 0.5mm 0;
             }
 
+            /* تم تكبير قسم اللوجو ليصبح 7mm بدلاً من 5.5mm */
             .logo-section {
-                width: 5.5mm; 
+                width: 7mm; 
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1.2px solid #000; 
+                border-left: 1.5px solid #000; 
                 box-sizing: border-box;
                 padding-right: 0.2mm; 
-                padding-left: 0.4mm;  
+                padding-left: 0.5mm;  
                 overflow: hidden;
             }
 
+            /* تكبير صورة اللوجو */
             .print-logo-img {
-                width: 160%; 
+                width: 100%; 
                 height: auto;
-                max-height: 6.9mm; 
+                max-height: 8.2mm; /* تم زيادته لإعطاء مساحة أكبر للوجو */
                 object-fit: contain;
                 display: block;
                 filter: grayscale(100%) contrast(1.5) brightness(0.9);
-                margin-bottom: 0.5mm; 
+                margin-bottom: 0.3mm; 
+                transform: scale(1.1); /* تكبير إضافي بنسبة 10% لملء الفراغ */
             }
 
             .branch-text {
-                font-size: 5pt; 
+                font-size: 5.5pt; /* تكبير بسيط لاسم الفرع */
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
                 margin-top: 0;
-                width: 150%; 
-                transform: scaleX(0.75); 
-                transform-origin: center top;
+                width: 100%; 
                 overflow: hidden;
             }
 
+            /* تم تقليل عرض قسم الجرعة ليناسب الزيادة في قسم اللوجو (30 - 7 = 23) */
             .dosage-section {
-                width: 24.5mm; 
+                width: 23mm; 
                 height: 100%;
                 display: flex;
                 align-items: center; 
@@ -289,6 +291,7 @@
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">الوحدة</label>
                                 <select id="input-dur-unit" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="ساعات">ساعات</option>
                                     <option value="يوم">يوم</option>
                                     <option value="أيام">أيام</option>
                                     <option value="أسابيع">أسابيع</option>
@@ -310,7 +313,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ أصبح النص يندمج بذكاء بناءً على مدخلاتك فقط.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم تفعيل ذكاء التوقيت والمدة، وتكبير الشعار في الطباعة.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -503,7 +506,6 @@
             'بخة': ['على الفروة', 'على الجلد']
         };
 
-        // دالة جديدة للتحكم في إخفاء وإظهار الشكل الدوائي
         window.handleQtyChange = function() {
             const qty = document.getElementById('input-qty').value;
             const typeContainer = document.getElementById('type-container');
@@ -511,8 +513,8 @@
 
             if (qty === 'دهان') {
                 typeContainer.classList.add('hidden');
-                typeSelect.value = ''; // تصفير الشكل الدوائي
-                handleTypeChange();    // إخفاء الطريقة الفرعية بالتبعية
+                typeSelect.value = ''; 
+                handleTypeChange();    
             } else {
                 typeContainer.classList.remove('hidden');
             }
@@ -536,7 +538,6 @@
 
         window.addDosage = function() {
             const qty = document.getElementById('input-qty').value;
-            // إذا كان "دهان" فإن حقل الشكل الدوائي مخفي وقيمته فارغة
             const typeContainerHidden = document.getElementById('type-container').classList.contains('hidden');
             const type = typeContainerHidden ? "" : document.getElementById('input-type').value;
             
@@ -553,7 +554,7 @@
                 methodStr = methodSelect.value;
             }
 
-            // بناء السطر الأول ذكياً (تجاهل الفراغات)
+            // بناء السطر الأول
             let line1Parts = [];
             if (qty) line1Parts.push(qty);
             if (type) line1Parts.push(type);
@@ -562,14 +563,24 @@
             
             let rawLine1 = line1Parts.join(" ");
 
-            // بناء السطر الثاني ذكياً (التوقيت والمدة)
+            // بناء السطر الثاني (بالقاعدة الذكية الجديدة)
             let line2Parts = [];
-            if (timing) line2Parts.push(timing);
-            if (durVal) line2Parts.push(`لمدة ${durVal} ${durUnit}`);
+            
+            if (timing === 'كل') {
+                // إذا كان التوقيت "كل"، نضيفه مباشرة مع المدة بدون كلمة "لمدة"
+                if (durVal) {
+                    line2Parts.push(`كل ${durVal} ${durUnit}`);
+                } else {
+                    line2Parts.push(`كل`);
+                }
+            } else {
+                // أي توقيت آخر، نضع التوقيت ثم "لمدة كذا"
+                if (timing) line2Parts.push(timing);
+                if (durVal) line2Parts.push(`لمدة ${durVal} ${durUnit}`);
+            }
             
             let rawLine2 = line2Parts.join(" ");
 
-            // التأكد من أن المستخدم أدخل ولو شيء واحد
             if (!rawLine1 && !rawLine2) { 
                 window.showToast("عفواً، لا يمكن طباعة ملصق فارغ تماماً", true); 
                 return; 
@@ -586,7 +597,7 @@
             document.getElementById('input-freq').value = '';
             document.getElementById('input-timing').value = '';
             document.getElementById('input-dur-val').value = '';
-            handleQtyChange(); // إعادة ضبط الواجهة لحالتها الافتراضية
+            handleQtyChange(); 
             
             window.renderLabels();
         };
@@ -614,7 +625,6 @@
 
             // رسم المعاينة في الواجهة
             window.dosagesArray.forEach((item, index) => {
-                // تكوين النص بذكاء، إذا لم يوجد سطر ثاني لا نضع الفاصلة (،)
                 let combinedText = "";
                 if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
                 else if (item.line1) combinedText = item.line1;
@@ -681,7 +691,22 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             handleQtyChange();
+            // إضافة خيار الساعات كوحدة وقت بناءً على طبيعة الخيار "كل"
+            const unitSelect = document.getElementById('input-dur-unit');
+            let hasHours = false;
+            for(let i=0; i<unitSelect.options.length; i++){
+                if(unitSelect.options[i].value === 'ساعات') hasHours = true;
+            }
+            if(!hasHours) {
+                const opt = document.createElement('option');
+                opt.value = 'ساعات';
+                opt.text = 'ساعات';
+                unitSelect.insertBefore(opt, unitSelect.firstChild);
+                unitSelect.value = 'ساعات';
+            }
         });
     </script>
 </body>
 </html>
+
+
