@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام طباعة ملصقات الصيدلية - النهائي</title>
+    <title>نظام طباعة ملصقات الصيدلية - الذكي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -13,7 +13,6 @@
         /* إعدادات الطباعة الدقيقة (بناءً على الصورة والمقاس 3سم × 2سم) */
         @media print {
             @page {
-                /* مساحة الورقة الإجمالية التي تحتوي على الستيكرين معاً */
                 size: 30mm 20mm; 
                 margin: 0;
             }
@@ -35,7 +34,6 @@
                 padding: 0;
             }
 
-            /* الحاوية التي تضم الستيكرين - مقاسها 30×20 ملم */
             .label-page {
                 width: 30mm;
                 height: 20mm;
@@ -51,7 +49,6 @@
                 border: none !important;
             }
 
-            /* الستيكر الواحد (الجرعة الواحدة) - يأخذ نصف الارتفاع بالضبط (10 ملم) */
             .single-sticker {
                 width: 30mm;
                 height: 10mm; 
@@ -59,11 +56,9 @@
                 flex-direction: row;
                 box-sizing: border-box;
                 overflow: hidden;
-                /* مسافة أمان علوية وسفلية تمنع الكلام من ملامسة خط القص */
                 padding: 1mm 0; 
             }
 
-            /* قسم اللوجو والفرع (اليمين) */
             .logo-section {
                 width: 9mm; 
                 height: 100%;
@@ -71,21 +66,21 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1px solid #000; /* خط فاصل واضح */
+                border-left: 1px solid #000;
                 box-sizing: border-box;
                 padding: 0 0.5mm; 
             }
 
             .print-logo-img {
                 max-width: 100%;
-                max-height: 5mm; /* تكبير اللوجو ليكون أوضح */
+                max-height: 5mm; 
                 object-fit: contain;
                 display: block;
                 filter: grayscale(100%) contrast(1.5) brightness(0.9);
             }
 
             .branch-text {
-                font-size: 4.5pt; /* تكبير اسم الفرع */
+                font-size: 4.5pt; 
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
@@ -94,21 +89,19 @@
                 margin-top: 1px;
             }
 
-            /* قسم نص الجرعة (اليسار) */
             .dosage-section {
                 width: 21mm;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center; /* توسيط عمودي مثالي */
+                justify-content: center; 
                 box-sizing: border-box;
-                padding-right: 1mm; /* مسافة عن الخط الفاصل */
+                padding-right: 1mm; 
             }
 
-            /* نصوص الجرعة - تم تكبير الخط بشكل كبير جداً ليكون واضحاً */
             .dose-line {
-                font-size: 9pt; /* خط كبير ومقروء بوضوح تام */
+                font-size: 8.5pt; /* تم تصغيره درجة بسيطة جداً لاستيعاب الكلمات الجديدة */
                 font-weight: 900;
                 color: #000;
                 line-height: 1.15;
@@ -118,6 +111,22 @@
         }
         
         .modal-hidden { display: none !important; }
+        
+        /* أنيميشن لظهور الحقول الإضافية */
+        .slide-down {
+            transition: all 0.3s ease-in-out;
+            max-height: 100px;
+            opacity: 1;
+            overflow: hidden;
+        }
+        .slide-up {
+            max-height: 0;
+            opacity: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="min-h-screen pb-10 relative">
@@ -204,7 +213,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">الشكل الدوائي</label>
-                                <select id="input-type" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <select id="input-type" onchange="handleTypeChange()" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
                                     <option value="قرص">قرص</option>
                                     <option value="كيس">كيس</option>
                                     <option value="كبسولة">كبسولة</option>
@@ -217,15 +226,39 @@
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">التكرار</label>
-                            <select id="input-freq" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
-                                <option value="مرة واحدة">مرة واحدة</option>
-                                <option value="مرتين">مرتين</option>
-                                <option value="3 مرات" selected>3 مرات</option>
-                                <option value="4 مرات">4 مرات</option>
-                                <option value="6 مرات">6 مرات</option>
+                        <!-- حقل الطريقة الفرعية (يظهر ويختفي برمجياً) -->
+                        <div id="usage-method-container" class="slide-up">
+                            <label class="block text-xs font-bold text-teal-600 mb-1">طريقة الاستخدام (تحديد)</label>
+                            <select id="input-usage-method" class="w-full border border-teal-200 rounded-lg p-2.5 bg-teal-50 font-bold focus:ring-2 focus:ring-teal-500 outline-none text-teal-900">
+                                <!-- سيتم تعبئتها بواسطة JS -->
                             </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">التكرار</label>
+                                <select id="input-freq" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="مرة واحدة">مرة واحدة</option>
+                                    <option value="مرتين">مرتين</option>
+                                    <option value="3 مرات" selected>3 مرات</option>
+                                    <option value="4 مرات">4 مرات</option>
+                                    <option value="6 مرات">6 مرات</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-indigo-500 mb-1">التوقيت</label>
+                                <select id="input-timing" class="w-full border border-indigo-200 rounded-lg p-2.5 bg-indigo-50 font-bold focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-900">
+                                    <option value="">بدون توقيت</option>
+                                    <option value="قبل الأكل">قبل الأكل</option>
+                                    <option value="بعد الأكل">بعد الأكل</option>
+                                    <option value="قبل النوم">قبل النوم</option>
+                                    <option value="على الريق">على الريق</option>
+                                    <option value="قبل الفطار">قبل الفطار</option>
+                                    <option value="بعد الفطار">بعد الفطار</option>
+                                    <option value="قبل العشاء">قبل العشاء</option>
+                                    <option value="بعد العشاء">بعد العشاء</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -256,7 +289,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط المقاسات الدقيقة (3×2 سم) مع تكبير الخطوط لأقصى درجة.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط المقاسات الدقيقة والذكاء في دمج التوقيت وطريقة الاستخدام.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -444,17 +477,66 @@
             });
         }
 
+        // --- المنطق الذكي للحقول الديناميكية ---
+        const usageOptionsData = {
+            'لبوسة': ['شرجية', 'مهبلية'],
+            'نقطة': ['بالفم', 'بالأنف', 'بالعين', 'على الفروة'],
+            'بخة': ['على الفروة', 'على الجلد']
+        };
+
+        window.handleTypeChange = function() {
+            const type = document.getElementById('input-type').value;
+            const container = document.getElementById('usage-method-container');
+            const select = document.getElementById('input-usage-method');
+
+            if (usageOptionsData[type]) {
+                // تعبئة الخيارات
+                select.innerHTML = usageOptionsData[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                // إظهار الحقل
+                container.classList.remove('slide-up');
+                container.classList.add('slide-down', 'mt-3');
+            } else {
+                // إخفاء الحقل وتفريغه
+                container.classList.remove('slide-down', 'mt-3');
+                container.classList.add('slide-up');
+                select.innerHTML = '';
+            }
+        };
+
         window.addDosage = function() {
             const qty = document.getElementById('input-qty').value;
             const type = document.getElementById('input-type').value;
             const freq = document.getElementById('input-freq').value;
+            const timing = document.getElementById('input-timing').value;
             const durVal = document.getElementById('input-dur-val').value;
             const durUnit = document.getElementById('input-dur-unit').value;
+            
+            const methodSelect = document.getElementById('input-usage-method');
+            const methodContainer = document.getElementById('usage-method-container');
 
             if (!durVal) { window.showToast("أدخل المدة أولاً", true); return; }
 
-            const line1 = convertToArabicNumerals(`${qty} ${type} ${freq}`); 
-            const line2 = convertToArabicNumerals(`لمدة ${durVal} ${durUnit}`); 
+            // تحديد الطريقة الفرعية إذا كانت موجودة وظاهرة
+            let methodStr = "";
+            if (!methodContainer.classList.contains('slide-up') && methodSelect.value) {
+                methodStr = ` ${methodSelect.value}`;
+            }
+
+            // بناء السطر الأول (الكمية + النوع + الطريقة الفرعية + التكرار)
+            // مثال: 1 نقطة بالعين 3 مرات
+            let rawLine1 = `${qty} ${type}${methodStr} ${freq}`;
+            
+            // بناء السطر الثاني (التوقيت + المدة)
+            // مثال: قبل الأكل لمدة 5 أيام
+            let rawLine2 = "";
+            if(timing) {
+                rawLine2 = `${timing} لمدة ${durVal} ${durUnit}`;
+            } else {
+                rawLine2 = `لمدة ${durVal} ${durUnit}`;
+            }
+
+            const line1 = convertToArabicNumerals(rawLine1); 
+            const line2 = convertToArabicNumerals(rawLine2); 
 
             window.dosagesArray.push({ id: Date.now(), line1, line2 });
             document.getElementById('input-dur-val').value = '';
@@ -500,7 +582,7 @@
                 list.appendChild(card);
             });
 
-            // 2. كود الطباعة الجديد والمصحح كلياً
+            // 2. كود الطباعة الجديد
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -525,18 +607,23 @@
                     </div>
                 `;
 
-                let pageHtml = buildSticker(dose1); // الجرعة العلوية تأخذ 10مم
+                let pageHtml = buildSticker(dose1); 
 
                 if (dose2) {
-                    pageHtml += buildSticker(dose2); // الجرعة السفلية تأخذ 10مم
+                    pageHtml += buildSticker(dose2); 
                 } else {
-                    pageHtml += `<div class="single-sticker"></div>`; // مساحة فارغة للجرعة السفلية
+                    pageHtml += `<div class="single-sticker"></div>`; 
                 }
 
                 printPage.innerHTML = pageHtml;
                 printArea.appendChild(printPage);
             }
         }
+
+        // تشغيل الفحص المبدئي عند تحميل الصفحة للتأكد من حالة الخيارات الافتراضية
+        window.addEventListener('DOMContentLoaded', () => {
+            handleTypeChange();
+        });
     </script>
 </body>
 </html>
