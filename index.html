@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -10,17 +10,14 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         
-        /* إعدادات الطباعة الاحترافية لطابعات الباركود الحرارية */
+        /* إعدادات الطباعة للستيكر المزدوج (30mm x 10mm مقسم لنصفين) */
         @media print {
-            /* إجبار المتصفح على مقاس 3 سم × 1 سم وإلغاء أي هوامش */
             @page {
                 size: 30mm 10mm;
                 margin: 0;
             }
             
             body, html {
-                width: 30mm;
-                height: 10mm;
                 margin: 0 !important;
                 padding: 0 !important;
                 background-color: white !important;
@@ -32,18 +29,18 @@
             
             #print-area {
                 display: block !important;
-                width: 100%;
+                width: 30mm;
                 margin: 0;
                 padding: 0;
             }
 
-            /* تصميم الملصق الواحد (يأخذ الصفحة كاملة 30x10) */
+            /* الصفحة الواحدة (30x10) تحتوي على جرعتين */
             .label-page {
                 width: 30mm;
                 height: 10mm;
                 display: flex;
-                flex-direction: row; /* يمين ويسار */
-                page-break-after: always; /* أمر مهم جداً: كل جرعة في ستيكر منفصل */
+                flex-direction: column; /* ترتيب علوي وسفلي */
+                page-break-after: always;
                 page-break-inside: avoid;
                 overflow: hidden;
                 box-sizing: border-box;
@@ -53,41 +50,53 @@
                 border: none !important;
             }
 
+            /* الستيكر الواحد (الجرعة الواحدة) بالضبط 5 ملم ارتفاع */
+            .single-sticker {
+                width: 30mm;
+                height: 5mm; /* نصف الارتفاع تماماً */
+                display: flex;
+                flex-direction: row;
+                box-sizing: border-box;
+                overflow: hidden;
+                padding: 0;
+                margin: 0;
+            }
+
             /* قسم اللوجو والفرع (اليمين) - عرض 8 ملم */
             .logo-section {
                 width: 8mm; 
-                height: 10mm;
+                height: 5mm;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1.5px solid #000; /* الخط الفاصل الطولي */
+                border-left: 1px solid #000; /* الخط الفاصل الطولي */
                 box-sizing: border-box;
-                padding: 0.5mm; 
+                padding: 0.2mm; 
             }
 
+            /* تكبير اللوجو لأقصى حد ممكن داخل الـ 5 ملم */
             .print-logo-img {
-                max-width: 100%;
-                max-height: 6mm;
+                width: 100%;
+                height: 3.5mm; /* مساحة كبيرة للوجو */
                 object-fit: contain;
                 display: block;
-                margin-bottom: 0.5mm;
             }
 
             .branch-text {
-                font-size: 5pt;
+                font-size: 3.5pt;
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
-                overflow: hidden;
+                margin-top: 0.2mm;
             }
 
             /* قسم نص الجرعة (اليسار) - عرض 22 ملم */
             .dosage-section {
                 width: 22mm;
-                height: 10mm;
+                height: 5mm;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -96,19 +105,9 @@
                 padding: 0;
             }
 
-            /* السطر الأول: 1 قرص 3 مرات */
-            .dose-line1 {
-                font-size: 8.5pt;
-                font-weight: 900;
-                color: #000;
-                line-height: 1.1;
-                text-align: center;
-                white-space: nowrap;
-            }
-
-            /* السطر الثاني: لمدة 5 أيام */
-            .dose-line2 {
-                font-size: 8.5pt;
+            /* نصوص الجرعة - حجم مدروس للـ 5 ملم */
+            .dose-line {
+                font-size: 7.5pt; /* حجم ممتاز للوضوح */
                 font-weight: 900;
                 color: #000;
                 line-height: 1.1;
@@ -168,19 +167,19 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold flex items-center gap-2">
-                        طباعة ملصقات الصيدلية
+                        نظام طباعة الملصقات 
                         <span id="active-branch-badge" class="bg-white/20 text-xs px-2 py-1 rounded text-emerald-50">بدون فرع</span>
                     </h1>
                     <div class="flex items-center gap-2 text-emerald-100 text-sm mt-1">
-                        <span>مقاس الستيكر 3 سم × 1 سم</span>
+                        <span>مقاس البكرة 3x1 (يتم دمج جرعتين)</span>
                         <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full"></span>
-                        <span id="cloud-status">جاري الاتصال بقاعدة البيانات... ⏳</span>
+                        <span id="cloud-status">جاري الاتصال... ⏳</span>
                     </div>
                 </div>
             </div>
             <div class="flex gap-3 flex-wrap">
                 <button onclick="openSettings()" class="bg-white/10 backdrop-blur text-white px-5 py-2 rounded-lg font-bold shadow-sm hover:bg-white/20 transition flex items-center gap-2 border border-white/20">
-                    ⚙️ الفروع والإعدادات
+                    ⚙️ الإعدادات
                 </button>
                 <button onclick="window.print()" class="bg-white text-emerald-700 px-6 py-2 rounded-lg font-black shadow-sm hover:bg-emerald-50 transition flex items-center gap-2 border-2 border-white">
                     <span>🖨️</span> طباعة القائمة
@@ -218,7 +217,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">التكرار (كم مرة)</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">التكرار</label>
                             <select id="input-freq" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
                                 <option value="مرة واحدة">مرة واحدة</option>
                                 <option value="مرتين">مرتين</option>
@@ -256,7 +255,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-gray-500 mt-1">المعاينة مطابقة تماماً للملصق الحقيقي (جرعة واحدة لكل ستيكر).</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم تفعيل الأرقام العربية. كل جرعتين ستطبع في ورقة واحدة.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -274,15 +273,14 @@
         </div>
     </div>
 
-    <!-- منطقة الطباعة -->
+    <!-- منطقة الطباعة المخفية -->
     <div id="print-area" class="hidden"></div>
 
-    <!-- Firebase Realtime Database SDK (v10.8.0) -->
+    <!-- Firebase Realtime Database SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // الكونفج الخاص بك للـ Realtime Database
         const firebaseConfig = {
             apiKey: "AIzaSyCnd79VgkCFO_ySrtknuYFNbRO9ADDCScI",
             authDomain: "leabl-705b3.firebaseapp.com",
@@ -311,24 +309,21 @@
                     window.branches = data.branches || [];
                     window.activeBranchId = data.activeBranchId || null;
                     
-                    // تحديث LocalStorage كنسخة احتياطية
                     localStorage.setItem('pharmacy_branches', JSON.stringify(window.branches));
                     localStorage.setItem('pharmacy_active_branch', window.activeBranchId);
                     
                     document.getElementById('cloud-status').innerHTML = "متصل بقاعدة البيانات 🟢";
                     document.getElementById('cloud-status').classList.replace('text-emerald-100', 'text-green-300');
                 } else {
-                    saveDataToDB(); // إنشاء مسار لأول مرة
+                    saveDataToDB(); 
                 }
                 updateUIWithActiveBranch();
                 renderBranchesList();
                 window.renderLabels();
             }, (error) => {
-                console.error("Firebase Read Error:", error);
                 useLocalFallback();
             });
         } catch (e) {
-            console.error("Firebase Init Error:", e);
             useLocalFallback();
         }
 
@@ -340,16 +335,13 @@
         }
 
         function saveDataToDB() {
-            // حفظ محلي دائماً
             localStorage.setItem('pharmacy_branches', JSON.stringify(window.branches));
             localStorage.setItem('pharmacy_active_branch', window.activeBranchId);
-
-            // حفظ في السحابة إذا كانت متاحة
             if (db) {
                 set(ref(db, dbPath), {
                     branches: window.branches,
                     activeBranchId: window.activeBranchId
-                }).catch(e => console.error("Firebase Write Error:", e));
+                }).catch(e => console.error("Firebase Error:", e));
             }
         }
 
@@ -443,6 +435,14 @@
             setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
         };
 
+        // دالة تحويل الأرقام الإنجليزية إلى عربية (٠١٢٣٤٥٦٧٨٩)
+        function convertToArabicNumerals(text) {
+            const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return text.toString().replace(/[0-9]/g, function(w) {
+                return arabicNumbers[w];
+            });
+        }
+
         window.addDosage = function() {
             const qty = document.getElementById('input-qty').value;
             const type = document.getElementById('input-type').value;
@@ -452,9 +452,9 @@
 
             if (!durVal) { window.showToast("أدخل المدة أولاً", true); return; }
 
-            // التنسيق مطابق للخط اليدوي تماماً
-            const line1 = `${qty} ${type} ${freq}`; // مثال: 1 قرص 3 مرات
-            const line2 = `لمدة ${durVal} ${durUnit}`; // مثال: لمدة 5 أيام
+            // تجميع النص ثم تحويل أرقامه إلى عربية
+            const line1 = convertToArabicNumerals(`${qty} ${type} ${freq}`); 
+            const line2 = convertToArabicNumerals(`لمدة ${durVal} ${durUnit}`); 
 
             window.dosagesArray.push({ id: Date.now(), line1, line2 });
             document.getElementById('input-dur-val').value = '';
@@ -482,42 +482,64 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
+            // 1. رسم المعاينة في الواجهة
             window.dosagesArray.forEach((item, index) => {
-                // 1. المعاينة على الشاشة (تشبه الورقة تماماً)
                 const card = document.createElement('div');
-                card.className = "bg-white border-2 border-gray-300 rounded-lg shadow-sm relative group overflow-hidden h-20 flex";
+                card.className = "bg-white border-2 border-emerald-200 rounded-lg shadow-sm relative group overflow-hidden h-16 flex";
                 card.innerHTML = `
                     <button onclick="removeDosage(${item.id})" class="absolute top-1 left-1 bg-red-100 text-red-500 rounded-full w-6 h-6 flex items-center justify-center font-bold z-10 opacity-0 group-hover:opacity-100 transition">✕</button>
-                    <div class="w-[30%] border-l border-gray-300 flex flex-col items-center justify-center p-1 bg-gray-50">
-                        ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="max-h-8 object-contain mb-1">` : ''}
-                        <span class="text-[9px] font-black leading-none text-center">${activeBranch.name}</span>
+                    <div class="w-[25%] border-l border-gray-300 flex flex-col items-center justify-center p-1 bg-gray-50">
+                        ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="max-h-6 object-contain mb-1">` : ''}
+                        <span class="text-[8px] font-black leading-none text-center">${activeBranch.name}</span>
                     </div>
-                    <div class="w-[70%] flex flex-col items-center justify-center p-2 bg-white">
+                    <div class="w-[75%] flex flex-col items-center justify-center p-1 bg-white">
                         <span class="text-sm font-black text-black leading-tight">${item.line1}</span>
-                        <span class="text-sm font-black text-black leading-tight mt-1">${item.line2}</span>
+                        <span class="text-sm font-black text-black leading-tight mt-0.5">${item.line2}</span>
                     </div>
                 `;
                 list.appendChild(card);
+            });
 
-                // 2. كود الطباعة الحقيقي (جرعة واحدة = ستيكر واحد)
+            // 2. كود الطباعة الحقيقي (تجميع كل جرعتين في صفحة 30x10 واحدة)
+            const combinedSideHtml = `
+                ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
+                <div class="branch-text">${activeBranch.name}</div>
+            `;
+
+            for (let i = 0; i < window.dosagesArray.length; i += 2) {
+                const dose1 = window.dosagesArray[i];
+                const dose2 = window.dosagesArray[i + 1]; 
+
                 const printPage = document.createElement('div');
                 printPage.className = "label-page";
-                printPage.innerHTML = `
-                    <div class="logo-section">
-                        ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
-                        <div class="branch-text">${activeBranch.name}</div>
-                    </div>
-                    <div class="dosage-section">
-                        <div class="dose-line1">${item.line1}</div>
-                        <div class="dose-line2">${item.line2}</div>
+
+                const buildSticker = (item) => `
+                    <div class="single-sticker">
+                        <div class="logo-section">
+                            ${combinedSideHtml}
+                        </div>
+                        <div class="dosage-section">
+                            <div class="dose-line">${item.line1}</div>
+                            <div class="dose-line">${item.line2}</div>
+                        </div>
                     </div>
                 `;
+
+                let pageHtml = buildSticker(dose1); // الستيكر العلوي
+
+                if (dose2) {
+                    pageHtml += buildSticker(dose2); // الستيكر السفلي إن وُجد
+                } else {
+                    pageHtml += `<div class="single-sticker"></div>`; // ترك السفلي فارغاً
+                }
+
+                printPage.innerHTML = pageHtml;
                 printArea.appendChild(printPage);
-            });
+            }
         }
     </script>
 </body>
 </html>
 
 
-
+```
