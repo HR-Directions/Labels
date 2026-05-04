@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام طباعة ملصقات الصيدلية - الذكي</title>
+    <title>نظام طباعة ملصقات الصيدلية - الذكي المنسق</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         
-        /* إعدادات الطباعة الدقيقة (بناءً على الصورة والمقاس 3سم × 2سم) */
+        /* إعدادات الطباعة الدقيقة والاحترافية المقفلة تماماً */
         @media print {
             @page {
                 size: 30mm 20mm; 
@@ -55,64 +55,86 @@
                 display: flex;
                 flex-direction: row;
                 box-sizing: border-box;
-                overflow: hidden;
-                padding: 1mm 0; 
+                overflow: hidden; /* حماية تامة لمنع خروج أي عنصر عن الستيكر */
+                padding: 0.5mm 0; /* مسافة بسيطة علوية وسفلية */
             }
 
+            /* قسم اللوجو والفرع (اليمين) - تم تصغيره لـ 8 مم لزيادة مساحة النص */
             .logo-section {
-                width: 9mm; 
+                width: 8mm; 
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1px solid #000;
+                border-left: 1.2px solid #000; /* خط فاصل متين */
                 box-sizing: border-box;
                 padding: 0 0.5mm; 
+                overflow: hidden;
             }
 
             .print-logo-img {
                 max-width: 100%;
-                max-height: 5mm; 
+                max-height: 4.5mm; 
                 object-fit: contain;
                 display: block;
                 filter: grayscale(100%) contrast(1.5) brightness(0.9);
             }
 
             .branch-text {
-                font-size: 4.5pt; 
+                font-size: 4pt; /* تصغير طفيف ليناسب الـ 8 مم */
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
                 margin-top: 1px;
+                overflow: hidden;
             }
 
+            /* قسم نص الجرعة (اليسار) - تم تكبيره لـ 22 مم */
             .dosage-section {
-                width: 21mm;
+                width: 22mm;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center; 
                 box-sizing: border-box;
-                padding-right: 1mm; 
+                /* مسافة أمان (1.5مم) من الخط الفاصل لمنع الالتصاق كما ظهر بالصورة */
+                padding-right: 1.5mm; 
+                padding-left: 0.5mm;
+                overflow: hidden; /* الجدار الناري: يمنع تداخل النص مع اللوجو نهائياً */
             }
 
-            .dose-line {
-                font-size: 8.5pt; /* تم تصغيره درجة بسيطة جداً لاستيعاب الكلمات الجديدة */
+            /* تنسيق السطر الأول (الجرعة والتكرار - قصير نسبياً) */
+            .dose-line-1 {
+                width: 100%;
+                font-size: 7.5pt; 
                 font-weight: 900;
                 color: #000;
-                line-height: 1.15;
+                line-height: 1.2;
                 text-align: center;
                 white-space: nowrap;
+                overflow: hidden;
+            }
+
+            /* تنسيق السطر الثاني (التوقيت والمدة - طويل جداً) */
+            .dose-line-2 {
+                width: 100%;
+                font-size: 6.2pt; /* خط أصغر ليحتوي جملة مثل "قبل الأكل لمدة 5 أيام" بارتياح */
+                font-weight: 900;
+                color: #000;
+                line-height: 1.2;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
             }
         }
         
         .modal-hidden { display: none !important; }
         
-        /* أنيميشن لظهور الحقول الإضافية */
+        /* أنيميشن الحقول الإضافية */
         .slide-down {
             transition: all 0.3s ease-in-out;
             max-height: 100px;
@@ -226,11 +248,10 @@
                             </div>
                         </div>
 
-                        <!-- حقل الطريقة الفرعية (يظهر ويختفي برمجياً) -->
+                        <!-- حقل الطريقة الفرعية -->
                         <div id="usage-method-container" class="slide-up">
                             <label class="block text-xs font-bold text-teal-600 mb-1">طريقة الاستخدام (تحديد)</label>
                             <select id="input-usage-method" class="w-full border border-teal-200 rounded-lg p-2.5 bg-teal-50 font-bold focus:ring-2 focus:ring-teal-500 outline-none text-teal-900">
-                                <!-- سيتم تعبئتها بواسطة JS -->
                             </select>
                         </div>
 
@@ -289,7 +310,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط المقاسات الدقيقة والذكاء في دمج التوقيت وطريقة الاستخدام.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط التنسيق وإضافة حدود أمان تمنع تداخل النصوص مع اللوجو.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -469,7 +490,6 @@
             setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
         };
 
-        // دالة تحويل الأرقام الإنجليزية إلى عربية
         function convertToArabicNumerals(text) {
             const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
             return text.toString().replace(/[0-9]/g, function(w) {
@@ -477,7 +497,6 @@
             });
         }
 
-        // --- المنطق الذكي للحقول الديناميكية ---
         const usageOptionsData = {
             'لبوسة': ['شرجية', 'مهبلية'],
             'نقطة': ['بالفم', 'بالأنف', 'بالعين', 'على الفروة'],
@@ -490,13 +509,10 @@
             const select = document.getElementById('input-usage-method');
 
             if (usageOptionsData[type]) {
-                // تعبئة الخيارات
                 select.innerHTML = usageOptionsData[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
-                // إظهار الحقل
                 container.classList.remove('slide-up');
                 container.classList.add('slide-down', 'mt-3');
             } else {
-                // إخفاء الحقل وتفريغه
                 container.classList.remove('slide-down', 'mt-3');
                 container.classList.add('slide-up');
                 select.innerHTML = '';
@@ -516,18 +532,13 @@
 
             if (!durVal) { window.showToast("أدخل المدة أولاً", true); return; }
 
-            // تحديد الطريقة الفرعية إذا كانت موجودة وظاهرة
             let methodStr = "";
             if (!methodContainer.classList.contains('slide-up') && methodSelect.value) {
                 methodStr = ` ${methodSelect.value}`;
             }
 
-            // بناء السطر الأول (الكمية + النوع + الطريقة الفرعية + التكرار)
-            // مثال: 1 نقطة بالعين 3 مرات
             let rawLine1 = `${qty} ${type}${methodStr} ${freq}`;
             
-            // بناء السطر الثاني (التوقيت + المدة)
-            // مثال: قبل الأكل لمدة 5 أيام
             let rawLine2 = "";
             if(timing) {
                 rawLine2 = `${timing} لمدة ${durVal} ${durUnit}`;
@@ -564,7 +575,7 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
-            // 1. رسم المعاينة
+            // رسم المعاينة في الواجهة
             window.dosagesArray.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = "bg-white border-2 border-emerald-200 rounded-lg shadow-sm relative group overflow-hidden h-16 flex";
@@ -582,7 +593,7 @@
                 list.appendChild(card);
             });
 
-            // 2. كود الطباعة الجديد
+            // كود الطباعة المحدث بالحدود والتنسيق الدقيق
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -601,8 +612,8 @@
                             ${combinedSideHtml}
                         </div>
                         <div class="dosage-section">
-                            <div class="dose-line">${item.line1}</div>
-                            <div class="dose-line">${item.line2}</div>
+                            <div class="dose-line-1">${item.line1}</div>
+                            <div class="dose-line-2">${item.line2}</div>
                         </div>
                     </div>
                 `;
@@ -620,12 +631,12 @@
             }
         }
 
-        // تشغيل الفحص المبدئي عند تحميل الصفحة للتأكد من حالة الخيارات الافتراضية
         window.addEventListener('DOMContentLoaded', () => {
             handleTypeChange();
         });
     </script>
 </body>
 </html>
+
 
 
