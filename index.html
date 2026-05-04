@@ -55,26 +55,26 @@
                 display: flex;
                 flex-direction: row;
                 box-sizing: border-box;
-                overflow: hidden; /* حماية تامة لمنع خروج أي عنصر عن الستيكر */
-                padding: 0.5mm 0; /* مسافة بسيطة علوية وسفلية */
+                overflow: hidden; 
+                padding: 0.5mm 0; 
             }
 
-            /* قسم اللوجو والفرع (اليمين) - تم تصغيره لـ 8 مم لزيادة مساحة النص */
+            /* تم تعديل العرض إلى 6.5 مم لدفعه لأقصى اليمين وتوفير مساحة */
             .logo-section {
-                width: 8mm; 
+                width: 6.5mm; 
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1.2px solid #000; /* خط فاصل متين */
+                border-left: 1px solid #000; /* خط فاصل */
                 box-sizing: border-box;
-                padding: 0 0.5mm; 
+                padding: 0 0.2mm; /* تقليل الهوامش لأقصى حد */
                 overflow: hidden;
             }
 
             .print-logo-img {
-                max-width: 100%;
+                max-width: 95%;
                 max-height: 4.5mm; 
                 object-fit: contain;
                 display: block;
@@ -82,7 +82,7 @@
             }
 
             .branch-text {
-                font-size: 4pt; /* تصغير طفيف ليناسب الـ 8 مم */
+                font-size: 3.5pt; /* تصغير طفيف ليتناسب مع العرض الجديد */
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
@@ -92,22 +92,21 @@
                 overflow: hidden;
             }
 
-            /* قسم نص الجرعة (اليسار) - تم تكبيره لـ 22 مم */
+            /* تم زيادة العرض إلى 23.5 مم لإعطاء مساحة أكبر للنص */
             .dosage-section {
-                width: 22mm;
+                width: 23.5mm;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center; 
                 box-sizing: border-box;
-                /* مسافة أمان (1.5مم) من الخط الفاصل لمنع الالتصاق كما ظهر بالصورة */
-                padding-right: 1.5mm; 
-                padding-left: 0.5mm;
-                overflow: hidden; /* الجدار الناري: يمنع تداخل النص مع اللوجو نهائياً */
+                /* تقليل مسافة الأمان اليمنى لتوسعة النص */
+                padding-right: 1mm; 
+                padding-left: 0;
+                overflow: hidden; 
             }
 
-            /* تنسيق السطر الأول (الجرعة والتكرار - قصير نسبياً) */
             .dose-line-1 {
                 width: 100%;
                 font-size: 7.5pt; 
@@ -119,22 +118,21 @@
                 overflow: hidden;
             }
 
-            /* تنسيق السطر الثاني (التوقيت والمدة - طويل جداً) */
             .dose-line-2 {
                 width: 100%;
-                font-size: 6.2pt; /* خط أصغر ليحتوي جملة مثل "قبل الأكل لمدة 5 أيام" بارتياح */
+                font-size: 6.2pt; 
                 font-weight: 900;
                 color: #000;
                 line-height: 1.2;
                 text-align: center;
                 white-space: nowrap;
                 overflow: hidden;
+                letter-spacing: -0.2px; /* تقريب الحروف قليلاً لضمان عدم القص */
             }
         }
         
         .modal-hidden { display: none !important; }
         
-        /* أنيميشن الحقول الإضافية */
         .slide-down {
             transition: all 0.3s ease-in-out;
             max-height: 100px;
@@ -593,7 +591,7 @@
                 list.appendChild(card);
             });
 
-            // كود الطباعة المحدث بالحدود والتنسيق الدقيق
+            // كود الطباعة المحدث
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -637,6 +635,5 @@
     </script>
 </body>
 </html>
-
 
 
