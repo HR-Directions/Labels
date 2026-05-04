@@ -10,10 +10,11 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         
-        /* إعدادات الطباعة للستيكر المزدوج (30mm x 10mm) */
+        /* إعدادات الطباعة الدقيقة (بناءً على الصورة والمقاس 3سم × 2سم) */
         @media print {
             @page {
-                size: 30mm 10mm;
+                /* مساحة الورقة الإجمالية التي تحتوي على الستيكرين معاً */
+                size: 30mm 20mm; 
                 margin: 0;
             }
             
@@ -34,14 +35,12 @@
                 padding: 0;
             }
 
-            /* الصفحة الواحدة (30x10) */
+            /* الحاوية التي تضم الستيكرين - مقاسها 30×20 ملم */
             .label-page {
                 width: 30mm;
-                height: 10mm;
+                height: 20mm;
                 display: flex;
                 flex-direction: column;
-                justify-content: center; /* توسيط الستيكرين في الصفحة لتفادي الحواف */
-                align-items: center;
                 page-break-after: always;
                 page-break-inside: avoid;
                 overflow: hidden;
@@ -52,49 +51,47 @@
                 border: none !important;
             }
 
-            /* الستيكر الواحد (الجرعة الواحدة) - جعلناه 4.7 مم لترك مسافة أمان للقص */
+            /* الستيكر الواحد (الجرعة الواحدة) - يأخذ نصف الارتفاع بالضبط (10 ملم) */
             .single-sticker {
                 width: 30mm;
-                height: 4.7mm; 
-                margin: 0.15mm 0; /* هامش أمان علوي وسفلي لتفادي خط القص في المنتصف */
+                height: 10mm; 
                 display: flex;
                 flex-direction: row;
                 box-sizing: border-box;
                 overflow: hidden;
-                padding: 0;
+                /* مسافة أمان علوية وسفلية تمنع الكلام من ملامسة خط القص */
+                padding: 1mm 0; 
             }
 
             /* قسم اللوجو والفرع (اليمين) */
             .logo-section {
-                width: 9mm; /* تم تكبيرها قليلاً لراحة اللوجو */
+                width: 9mm; 
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 0.5pt solid #000; /* خط فاصل نحيف وواضح للطابعة */
+                border-left: 1px solid #000; /* خط فاصل واضح */
                 box-sizing: border-box;
                 padding: 0 0.5mm; 
             }
 
-            /* تحسين اللوجو للطابعات الحرارية */
             .print-logo-img {
                 max-width: 100%;
-                max-height: 2.8mm; /* تحديد ارتفاع أقصى لمنع دفع النصوص */
+                max-height: 5mm; /* تكبير اللوجو ليكون أوضح */
                 object-fit: contain;
                 display: block;
-                /* الفلتر التالي يضمن طباعة اللوجو بأفضل سواد ممكن على ورق حراري */
                 filter: grayscale(100%) contrast(1.5) brightness(0.9);
             }
 
             .branch-text {
-                font-size: 3.5pt;
+                font-size: 4.5pt; /* تكبير اسم الفرع */
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
-                margin-top: 0.5px;
+                margin-top: 1px;
             }
 
             /* قسم نص الجرعة (اليسار) */
@@ -106,18 +103,17 @@
                 align-items: center;
                 justify-content: center; /* توسيط عمودي مثالي */
                 box-sizing: border-box;
-                padding-right: 0.5mm; /* إبعاد الكلام عن الخط الفاصل */
+                padding-right: 1mm; /* مسافة عن الخط الفاصل */
             }
 
-            /* نصوص الجرعة */
+            /* نصوص الجرعة - تم تكبير الخط بشكل كبير جداً ليكون واضحاً */
             .dose-line {
-                font-size: 6.5pt; /* حجم محسوب بدقة للـ 4.7 مم */
+                font-size: 9pt; /* خط كبير ومقروء بوضوح تام */
                 font-weight: 900;
                 color: #000;
                 line-height: 1.15;
                 text-align: center;
                 white-space: nowrap;
-                letter-spacing: -0.2px; /* تقريب الحروف قليلاً لكسب مساحة */
             }
         }
         
@@ -176,7 +172,7 @@
                         <span id="active-branch-badge" class="bg-white/20 text-xs px-2 py-1 rounded text-emerald-50">بدون فرع</span>
                     </h1>
                     <div class="flex items-center gap-2 text-emerald-100 text-sm mt-1">
-                        <span>مقاس البكرة 3x1 (يتم دمج جرعتين)</span>
+                        <span>مقاس البكرة 3سم × 2سم</span>
                         <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full"></span>
                         <span id="cloud-status">جاري الاتصال... ⏳</span>
                     </div>
@@ -260,7 +256,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط التوسيط وهوامش الأمان للطباعة بشكل احترافي.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط المقاسات الدقيقة (3×2 سم) مع تكبير الخطوط لأقصى درجة.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -504,7 +500,7 @@
                 list.appendChild(card);
             });
 
-            // 2. كود الطباعة (تم ضبط التوسيط وهوامش الأمان فيه)
+            // 2. كود الطباعة الجديد والمصحح كلياً
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -529,12 +525,12 @@
                     </div>
                 `;
 
-                let pageHtml = buildSticker(dose1);
+                let pageHtml = buildSticker(dose1); // الجرعة العلوية تأخذ 10مم
 
                 if (dose2) {
-                    pageHtml += buildSticker(dose2); 
+                    pageHtml += buildSticker(dose2); // الجرعة السفلية تأخذ 10مم
                 } else {
-                    pageHtml += `<div class="single-sticker"></div>`; 
+                    pageHtml += `<div class="single-sticker"></div>`; // مساحة فارغة للجرعة السفلية
                 }
 
                 printPage.innerHTML = pageHtml;
