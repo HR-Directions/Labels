@@ -56,20 +56,21 @@
                 flex-direction: row;
                 box-sizing: border-box;
                 overflow: hidden; 
-                padding: 0.5mm 0; 
+                padding: 0.5mm 0; /* هامش علوي وسفلي لتنفس النص */
             }
 
-            /* تم تعديل العرض إلى 6.5 مم لدفعه لأقصى اليمين وتوفير مساحة */
+            /* قسم اللوجو تم ضغطه لأقصى اليمين واستغلال المساحة */
             .logo-section {
-                width: 6.5mm; 
+                width: 5.5mm; /* تم تصغيره لدفع اللوجو لليمين وتوفير مساحة */
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1px solid #000; /* خط فاصل */
+                border-left: 1.2px solid #000; /* خط فاصل واضح */
                 box-sizing: border-box;
-                padding: 0 0.2mm; /* تقليل الهوامش لأقصى حد */
+                padding-right: 0; /* إزالة المساحة الفارغة على اليمين */
+                padding-left: 0.5mm; /* مسافة بسيطة قبل الخط */
                 overflow: hidden;
             }
 
@@ -82,7 +83,7 @@
             }
 
             .branch-text {
-                font-size: 3.5pt; /* تصغير طفيف ليتناسب مع العرض الجديد */
+                font-size: 3.5pt;
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
@@ -92,42 +93,30 @@
                 overflow: hidden;
             }
 
-            /* تم زيادة العرض إلى 23.5 مم لإعطاء مساحة أكبر للنص */
+            /* قسم النص تم توسعته ليأخذ باقي المساحة */
             .dosage-section {
-                width: 23.5mm;
+                width: 24.5mm; /* العرض الأقصى المتاح للنص */
                 height: 100%;
                 display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center; 
+                align-items: center; /* توسيط عمودي */
+                justify-content: center; /* توسيط أفقي */
                 box-sizing: border-box;
-                /* تقليل مسافة الأمان اليمنى لتوسعة النص */
-                padding-right: 1mm; 
-                padding-left: 0;
+                padding: 0 1mm; /* هوامش أمان جانبية */
                 overflow: hidden; 
             }
 
-            .dose-line-1 {
+            /* الكلاس السحري الجديد: يتيح ترحيل النص التلقائي حتى 3 سطور */
+            .dose-text-fluid {
                 width: 100%;
-                font-size: 7.5pt; 
+                font-size: 6.8pt; /* حجم واضح جداً ومناسب للمقاس */
                 font-weight: 900;
                 color: #000;
-                line-height: 1.2;
+                line-height: 1.25; /* مسافة مدروسة بين السطور لتجنب التداخل */
                 text-align: center;
-                white-space: nowrap;
+                white-space: normal; /* يسمح بالتفاف النص (ترحيل للسطر التالي) */
+                word-break: break-word; /* منع الكلمات من الخروج عن الإطار */
+                max-height: 100%;
                 overflow: hidden;
-            }
-
-            .dose-line-2 {
-                width: 100%;
-                font-size: 6.2pt; 
-                font-weight: 900;
-                color: #000;
-                line-height: 1.2;
-                text-align: center;
-                white-space: nowrap;
-                overflow: hidden;
-                letter-spacing: -0.2px; /* تقريب الحروف قليلاً لضمان عدم القص */
             }
         }
         
@@ -308,7 +297,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط التنسيق وإضافة حدود أمان تمنع تداخل النصوص مع اللوجو.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم تفعيل خاصية النص المرن المتدفق (Fluid Text) ليناسب أي طول.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -573,25 +562,24 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
-            // رسم المعاينة في الواجهة
+            // رسم المعاينة في الواجهة ليتناسب مع التصميم الجديد المرن
             window.dosagesArray.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = "bg-white border-2 border-emerald-200 rounded-lg shadow-sm relative group overflow-hidden h-16 flex";
                 card.innerHTML = `
                     <button onclick="removeDosage(${item.id})" class="absolute top-1 left-1 bg-red-100 text-red-500 rounded-full w-6 h-6 flex items-center justify-center font-bold z-10 opacity-0 group-hover:opacity-100 transition">✕</button>
-                    <div class="w-[25%] border-l border-gray-300 flex flex-col items-center justify-center p-1 bg-gray-50">
+                    <div class="w-[20%] border-l border-gray-300 flex flex-col items-center justify-center p-1 bg-gray-50">
                         ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="max-h-6 object-contain mb-1">` : ''}
                         <span class="text-[8px] font-black leading-none text-center">${activeBranch.name}</span>
                     </div>
-                    <div class="w-[75%] flex flex-col items-center justify-center p-1 bg-white">
-                        <span class="text-sm font-black text-black leading-tight">${item.line1}</span>
-                        <span class="text-sm font-black text-black leading-tight mt-0.5">${item.line2}</span>
+                    <div class="w-[80%] flex items-center justify-center p-2 bg-white text-center">
+                        <span class="text-sm font-black text-black leading-tight">${item.line1}، ${item.line2}</span>
                     </div>
                 `;
                 list.appendChild(card);
             });
 
-            // كود الطباعة المحدث
+            // كود الطباعة المحدث: دمج النص في بلوك واحد مرن مع فاصلة
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -610,8 +598,7 @@
                             ${combinedSideHtml}
                         </div>
                         <div class="dosage-section">
-                            <div class="dose-line-1">${item.line1}</div>
-                            <div class="dose-line-2">${item.line2}</div>
+                            <div class="dose-text-fluid">${item.line1}، ${item.line2}</div>
                         </div>
                     </div>
                 `;
@@ -635,5 +622,6 @@
     </script>
 </body>
 </html>
+
 
 
