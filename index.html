@@ -59,39 +59,46 @@
                 padding: 0.5mm 0; /* هامش علوي وسفلي لتنفس النص */
             }
 
-            /* قسم اللوجو تم ضغطه لأقصى اليمين واستغلال المساحة */
+            /* --------- التعديلات الاحترافية على قسم اللوجو --------- */
             .logo-section {
-                width: 5.5mm; /* تم تصغيره لدفع اللوجو لليمين وتوفير مساحة */
+                width: 5.5mm; /* العرض ثابت كما طلبت لم يتم تغييره */
                 height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1.2px solid #000; /* خط فاصل واضح */
+                border-left: 1.2px solid #000; 
                 box-sizing: border-box;
-                padding-right: 0; /* إزالة المساحة الفارغة على اليمين */
-                padding-left: 0.5mm; /* مسافة بسيطة قبل الخط */
+                padding-right: 0.2mm; /* استغلال المساحة اليمنى */
+                padding-left: 0.4mm;  /* تقليل المساحة اليسرى قليلاً */
                 overflow: hidden;
             }
 
             .print-logo-img {
-                max-width: 95%;
-                max-height: 4.5mm; 
+                width: 100%; /* إجبار اللوجو على أخذ كامل العرض المتاح */
+                height: auto;
+                max-height: 6.5mm; /* تم زيادته بشكل كبير (كان 4.5) ليظهر اللوجو بحجم ممتاز */
                 object-fit: contain;
                 display: block;
                 filter: grayscale(100%) contrast(1.5) brightness(0.9);
+                margin-bottom: 0.5mm; /* مسافة طفيفة بين اللوجو واسم الفرع */
             }
 
             .branch-text {
-                font-size: 3.5pt;
+                font-size: 5pt; /* تكبير الخط بشكل ملحوظ (كان 3.5) */
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
-                margin-top: 1px;
+                margin-top: 0;
+                /* حيلة الطباعة: السماح للنص بعرض أكبر ثم ضغطه أفقياً ليناسب المساحة الضيقة دون تصغير ارتفاع الحرف */
+                width: 140%; 
+                transform: scaleX(0.75); 
+                transform-origin: center top;
                 overflow: hidden;
             }
+            /* --------------------------------------------------------- */
 
             /* قسم النص تم توسعته ليأخذ باقي المساحة */
             .dosage-section {
@@ -622,6 +629,5 @@
     </script>
 </body>
 </html>
-
 
 
