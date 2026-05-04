@@ -56,12 +56,11 @@
                 flex-direction: row;
                 box-sizing: border-box;
                 overflow: hidden; 
-                padding: 0.5mm 0; /* هامش علوي وسفلي لتنفس النص */
+                padding: 0.5mm 0;
             }
 
-            /* --------- التعديلات الاحترافية على قسم اللوجو --------- */
             .logo-section {
-                width: 5.5mm; /* العرض ثابت كما طلبت لم يتم تغييره */
+                width: 5.5mm; 
                 height: 100%;
                 display: flex;
                 flex-direction: column;
@@ -69,59 +68,55 @@
                 justify-content: center;
                 border-left: 1.2px solid #000; 
                 box-sizing: border-box;
-                padding-right: 0.2mm; /* استغلال المساحة اليمنى */
-                padding-left: 0.4mm;  /* تقليل المساحة اليسرى قليلاً */
+                padding-right: 0.2mm; 
+                padding-left: 0.4mm;  
                 overflow: hidden;
             }
 
             .print-logo-img {
-                width: 100%; /* إجبار اللوجو على أخذ كامل العرض المتاح */
+                width: 100%; 
                 height: auto;
-                max-height: 6.5mm; /* تم زيادته بشكل كبير (كان 4.5) ليظهر اللوجو بحجم ممتاز */
+                max-height: 6.5mm; 
                 object-fit: contain;
                 display: block;
                 filter: grayscale(100%) contrast(1.5) brightness(0.9);
-                margin-bottom: 0.5mm; /* مسافة طفيفة بين اللوجو واسم الفرع */
+                margin-bottom: 0.5mm; 
             }
 
             .branch-text {
-                font-size: 5pt; /* تكبير الخط بشكل ملحوظ (كان 3.5) */
+                font-size: 5pt; 
                 font-weight: 900;
                 color: #000;
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
                 margin-top: 0;
-                /* حيلة الطباعة: السماح للنص بعرض أكبر ثم ضغطه أفقياً ليناسب المساحة الضيقة دون تصغير ارتفاع الحرف */
                 width: 140%; 
                 transform: scaleX(0.75); 
                 transform-origin: center top;
                 overflow: hidden;
             }
-            /* --------------------------------------------------------- */
 
-            /* قسم النص تم توسعته ليأخذ باقي المساحة */
             .dosage-section {
-                width: 24.5mm; /* العرض الأقصى المتاح للنص */
+                width: 24.5mm; 
                 height: 100%;
                 display: flex;
-                align-items: center; /* توسيط عمودي */
-                justify-content: center; /* توسيط أفقي */
+                align-items: center; 
+                justify-content: center; 
                 box-sizing: border-box;
-                padding: 0 1mm; /* هوامش أمان جانبية */
+                padding: 0 1mm; 
                 overflow: hidden; 
             }
 
-            /* الكلاس السحري الجديد: يتيح ترحيل النص التلقائي حتى 3 سطور */
             .dose-text-fluid {
                 width: 100%;
-                font-size: 6.8pt; /* حجم واضح جداً ومناسب للمقاس */
+                font-size: 6.8pt; 
                 font-weight: 900;
                 color: #000;
-                line-height: 1.25; /* مسافة مدروسة بين السطور لتجنب التداخل */
+                line-height: 1.25; 
                 text-align: center;
-                white-space: normal; /* يسمح بالتفاف النص (ترحيل للسطر التالي) */
-                word-break: break-word; /* منع الكلمات من الخروج عن الإطار */
+                white-space: normal; 
+                word-break: break-word; 
                 max-height: 100%;
                 overflow: hidden;
             }
@@ -223,13 +218,16 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">الكمية</label>
-                                <select id="input-qty" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <select id="input-qty" onchange="handleQtyChange()" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value="دهان">دهان</option>
                                     <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
                                 </select>
                             </div>
-                            <div>
+                            <div id="type-container">
                                 <label class="block text-xs font-bold text-gray-500 mb-1">الشكل الدوائي</label>
                                 <select id="input-type" onchange="handleTypeChange()" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="" selected>بدون</option>
                                     <option value="قرص">قرص</option>
                                     <option value="كيس">كيس</option>
                                     <option value="كبسولة">كبسولة</option>
@@ -253,9 +251,10 @@
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">التكرار</label>
                                 <select id="input-freq" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="" selected>بدون</option>
                                     <option value="مرة واحدة">مرة واحدة</option>
                                     <option value="مرتين">مرتين</option>
-                                    <option value="3 مرات" selected>3 مرات</option>
+                                    <option value="3 مرات">3 مرات</option>
                                     <option value="4 مرات">4 مرات</option>
                                     <option value="6 مرات">6 مرات</option>
                                 </select>
@@ -263,7 +262,7 @@
                             <div>
                                 <label class="block text-xs font-bold text-indigo-500 mb-1">التوقيت</label>
                                 <select id="input-timing" class="w-full border border-indigo-200 rounded-lg p-2.5 bg-indigo-50 font-bold focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-900">
-                                    <option value="">بدون توقيت</option>
+                                    <option value="" selected>بدون</option>
                                     <option value="قبل الأكل">قبل الأكل</option>
                                     <option value="بعد الأكل">بعد الأكل</option>
                                     <option value="قبل النوم">قبل النوم</option>
@@ -304,7 +303,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم تفعيل خاصية النص المرن المتدفق (Fluid Text) ليناسب أي طول.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ أصبح النص يندمج بذكاء بناءً على مدخلاتك فقط.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -497,12 +496,27 @@
             'بخة': ['على الفروة', 'على الجلد']
         };
 
+        // دالة جديدة للتحكم في إخفاء وإظهار الشكل الدوائي
+        window.handleQtyChange = function() {
+            const qty = document.getElementById('input-qty').value;
+            const typeContainer = document.getElementById('type-container');
+            const typeSelect = document.getElementById('input-type');
+
+            if (qty === 'دهان') {
+                typeContainer.classList.add('hidden');
+                typeSelect.value = ''; // تصفير الشكل الدوائي
+                handleTypeChange();    // إخفاء الطريقة الفرعية بالتبعية
+            } else {
+                typeContainer.classList.remove('hidden');
+            }
+        };
+
         window.handleTypeChange = function() {
             const type = document.getElementById('input-type').value;
             const container = document.getElementById('usage-method-container');
             const select = document.getElementById('input-usage-method');
 
-            if (usageOptionsData[type]) {
+            if (type && usageOptionsData[type]) {
                 select.innerHTML = usageOptionsData[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
                 container.classList.remove('slide-up');
                 container.classList.add('slide-down', 'mt-3');
@@ -515,7 +529,10 @@
 
         window.addDosage = function() {
             const qty = document.getElementById('input-qty').value;
-            const type = document.getElementById('input-type').value;
+            // إذا كان "دهان" فإن حقل الشكل الدوائي مخفي وقيمته فارغة
+            const typeContainerHidden = document.getElementById('type-container').classList.contains('hidden');
+            const type = typeContainerHidden ? "" : document.getElementById('input-type').value;
+            
             const freq = document.getElementById('input-freq').value;
             const timing = document.getElementById('input-timing').value;
             const durVal = document.getElementById('input-dur-val').value;
@@ -524,27 +541,46 @@
             const methodSelect = document.getElementById('input-usage-method');
             const methodContainer = document.getElementById('usage-method-container');
 
-            if (!durVal) { window.showToast("أدخل المدة أولاً", true); return; }
-
             let methodStr = "";
             if (!methodContainer.classList.contains('slide-up') && methodSelect.value) {
-                methodStr = ` ${methodSelect.value}`;
+                methodStr = methodSelect.value;
             }
 
-            let rawLine1 = `${qty} ${type}${methodStr} ${freq}`;
+            // بناء السطر الأول ذكياً (تجاهل الفراغات)
+            let line1Parts = [];
+            if (qty) line1Parts.push(qty);
+            if (type) line1Parts.push(type);
+            if (methodStr) line1Parts.push(methodStr);
+            if (freq) line1Parts.push(freq);
             
-            let rawLine2 = "";
-            if(timing) {
-                rawLine2 = `${timing} لمدة ${durVal} ${durUnit}`;
-            } else {
-                rawLine2 = `لمدة ${durVal} ${durUnit}`;
+            let rawLine1 = line1Parts.join(" ");
+
+            // بناء السطر الثاني ذكياً (التوقيت والمدة)
+            let line2Parts = [];
+            if (timing) line2Parts.push(timing);
+            if (durVal) line2Parts.push(`لمدة ${durVal} ${durUnit}`);
+            
+            let rawLine2 = line2Parts.join(" ");
+
+            // التأكد من أن المستخدم أدخل ولو شيء واحد
+            if (!rawLine1 && !rawLine2) { 
+                window.showToast("عفواً، لا يمكن طباعة ملصق فارغ تماماً", true); 
+                return; 
             }
 
             const line1 = convertToArabicNumerals(rawLine1); 
             const line2 = convertToArabicNumerals(rawLine2); 
 
             window.dosagesArray.push({ id: Date.now(), line1, line2 });
+            
+            // تصفير الخانات لتسريع الإدخال المتتالي
+            document.getElementById('input-qty').value = '';
+            document.getElementById('input-type').value = '';
+            document.getElementById('input-freq').value = '';
+            document.getElementById('input-timing').value = '';
             document.getElementById('input-dur-val').value = '';
+            handleQtyChange(); // إعادة ضبط الواجهة لحالتها الافتراضية
+            
             window.renderLabels();
         };
 
@@ -569,8 +605,14 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
-            // رسم المعاينة في الواجهة ليتناسب مع التصميم الجديد المرن
+            // رسم المعاينة في الواجهة
             window.dosagesArray.forEach((item, index) => {
+                // تكوين النص بذكاء، إذا لم يوجد سطر ثاني لا نضع الفاصلة (،)
+                let combinedText = "";
+                if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
+                else if (item.line1) combinedText = item.line1;
+                else if (item.line2) combinedText = item.line2;
+
                 const card = document.createElement('div');
                 card.className = "bg-white border-2 border-emerald-200 rounded-lg shadow-sm relative group overflow-hidden h-16 flex";
                 card.innerHTML = `
@@ -580,13 +622,13 @@
                         <span class="text-[8px] font-black leading-none text-center">${activeBranch.name}</span>
                     </div>
                     <div class="w-[80%] flex items-center justify-center p-2 bg-white text-center">
-                        <span class="text-sm font-black text-black leading-tight">${item.line1}، ${item.line2}</span>
+                        <span class="text-sm font-black text-black leading-tight">${combinedText}</span>
                     </div>
                 `;
                 list.appendChild(card);
             });
 
-            // كود الطباعة المحدث: دمج النص في بلوك واحد مرن مع فاصلة
+            // كود الطباعة 
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -599,16 +641,23 @@
                 const printPage = document.createElement('div');
                 printPage.className = "label-page";
 
-                const buildSticker = (item) => `
+                const buildSticker = (item) => {
+                    let combinedText = "";
+                    if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
+                    else if (item.line1) combinedText = item.line1;
+                    else if (item.line2) combinedText = item.line2;
+
+                    return `
                     <div class="single-sticker">
                         <div class="logo-section">
                             ${combinedSideHtml}
                         </div>
                         <div class="dosage-section">
-                            <div class="dose-text-fluid">${item.line1}، ${item.line2}</div>
+                            <div class="dose-text-fluid">${combinedText}</div>
                         </div>
                     </div>
-                `;
+                    `;
+                };
 
                 let pageHtml = buildSticker(dose1); 
 
@@ -624,10 +673,8 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            handleTypeChange();
+            handleQtyChange();
         });
     </script>
 </body>
 </html>
-
-
