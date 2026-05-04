@@ -10,7 +10,7 @@
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         
-        /* إعدادات الطباعة للستيكر المزدوج (30mm x 10mm مقسم لنصفين) */
+        /* إعدادات الطباعة للستيكر المزدوج (30mm x 10mm) */
         @media print {
             @page {
                 size: 30mm 10mm;
@@ -34,12 +34,14 @@
                 padding: 0;
             }
 
-            /* الصفحة الواحدة (30x10) تحتوي على جرعتين */
+            /* الصفحة الواحدة (30x10) */
             .label-page {
                 width: 30mm;
                 height: 10mm;
                 display: flex;
-                flex-direction: column; /* ترتيب علوي وسفلي */
+                flex-direction: column;
+                justify-content: center; /* توسيط الستيكرين في الصفحة لتفادي الحواف */
+                align-items: center;
                 page-break-after: always;
                 page-break-inside: avoid;
                 overflow: hidden;
@@ -50,37 +52,39 @@
                 border: none !important;
             }
 
-            /* الستيكر الواحد (الجرعة الواحدة) بالضبط 5 ملم ارتفاع */
+            /* الستيكر الواحد (الجرعة الواحدة) - جعلناه 4.7 مم لترك مسافة أمان للقص */
             .single-sticker {
                 width: 30mm;
-                height: 5mm; /* نصف الارتفاع تماماً */
+                height: 4.7mm; 
+                margin: 0.15mm 0; /* هامش أمان علوي وسفلي لتفادي خط القص في المنتصف */
                 display: flex;
                 flex-direction: row;
                 box-sizing: border-box;
                 overflow: hidden;
                 padding: 0;
-                margin: 0;
             }
 
-            /* قسم اللوجو والفرع (اليمين) - عرض 8 ملم */
+            /* قسم اللوجو والفرع (اليمين) */
             .logo-section {
-                width: 8mm; 
-                height: 5mm;
+                width: 9mm; /* تم تكبيرها قليلاً لراحة اللوجو */
+                height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                border-left: 1px solid #000; /* الخط الفاصل الطولي */
+                border-left: 0.5pt solid #000; /* خط فاصل نحيف وواضح للطابعة */
                 box-sizing: border-box;
-                padding: 0.2mm; 
+                padding: 0 0.5mm; 
             }
 
-            /* تكبير اللوجو لأقصى حد ممكن داخل الـ 5 ملم */
+            /* تحسين اللوجو للطابعات الحرارية */
             .print-logo-img {
-                width: 100%;
-                height: 3.5mm; /* مساحة كبيرة للوجو */
+                max-width: 100%;
+                max-height: 2.8mm; /* تحديد ارتفاع أقصى لمنع دفع النصوص */
                 object-fit: contain;
                 display: block;
+                /* الفلتر التالي يضمن طباعة اللوجو بأفضل سواد ممكن على ورق حراري */
+                filter: grayscale(100%) contrast(1.5) brightness(0.9);
             }
 
             .branch-text {
@@ -90,29 +94,30 @@
                 line-height: 1;
                 text-align: center;
                 white-space: nowrap;
-                margin-top: 0.2mm;
+                margin-top: 0.5px;
             }
 
-            /* قسم نص الجرعة (اليسار) - عرض 22 ملم */
+            /* قسم نص الجرعة (اليسار) */
             .dosage-section {
-                width: 22mm;
-                height: 5mm;
+                width: 21mm;
+                height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
+                justify-content: center; /* توسيط عمودي مثالي */
                 box-sizing: border-box;
-                padding: 0;
+                padding-right: 0.5mm; /* إبعاد الكلام عن الخط الفاصل */
             }
 
-            /* نصوص الجرعة - حجم مدروس للـ 5 ملم */
+            /* نصوص الجرعة */
             .dose-line {
-                font-size: 7.5pt; /* حجم ممتاز للوضوح */
+                font-size: 6.5pt; /* حجم محسوب بدقة للـ 4.7 مم */
                 font-weight: 900;
                 color: #000;
-                line-height: 1.1;
+                line-height: 1.15;
                 text-align: center;
                 white-space: nowrap;
+                letter-spacing: -0.2px; /* تقريب الحروف قليلاً لكسب مساحة */
             }
         }
         
@@ -255,7 +260,7 @@
                     <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
                         <div>
                             <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم تفعيل الأرقام العربية. كل جرعتين ستطبع في ورقة واحدة.</p>
+                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم ضبط التوسيط وهوامش الأمان للطباعة بشكل احترافي.</p>
                         </div>
                         <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
@@ -435,7 +440,7 @@
             setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
         };
 
-        // دالة تحويل الأرقام الإنجليزية إلى عربية (٠١٢٣٤٥٦٧٨٩)
+        // دالة تحويل الأرقام الإنجليزية إلى عربية
         function convertToArabicNumerals(text) {
             const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
             return text.toString().replace(/[0-9]/g, function(w) {
@@ -452,7 +457,6 @@
 
             if (!durVal) { window.showToast("أدخل المدة أولاً", true); return; }
 
-            // تجميع النص ثم تحويل أرقامه إلى عربية
             const line1 = convertToArabicNumerals(`${qty} ${type} ${freq}`); 
             const line2 = convertToArabicNumerals(`لمدة ${durVal} ${durUnit}`); 
 
@@ -482,7 +486,7 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
-            // 1. رسم المعاينة في الواجهة
+            // 1. رسم المعاينة
             window.dosagesArray.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = "bg-white border-2 border-emerald-200 rounded-lg shadow-sm relative group overflow-hidden h-16 flex";
@@ -500,7 +504,7 @@
                 list.appendChild(card);
             });
 
-            // 2. كود الطباعة الحقيقي (تجميع كل جرعتين في صفحة 30x10 واحدة)
+            // 2. كود الطباعة (تم ضبط التوسيط وهوامش الأمان فيه)
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -525,12 +529,12 @@
                     </div>
                 `;
 
-                let pageHtml = buildSticker(dose1); // الستيكر العلوي
+                let pageHtml = buildSticker(dose1);
 
                 if (dose2) {
-                    pageHtml += buildSticker(dose2); // الستيكر السفلي إن وُجد
+                    pageHtml += buildSticker(dose2); 
                 } else {
-                    pageHtml += `<div class="single-sticker"></div>`; // ترك السفلي فارغاً
+                    pageHtml += `<div class="single-sticker"></div>`; 
                 }
 
                 printPage.innerHTML = pageHtml;
@@ -540,5 +544,4 @@
     </script>
 </body>
 </html>
-
 
