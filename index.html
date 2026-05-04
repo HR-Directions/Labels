@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام طباعة ملصقات الصيدلية - مقاس 3×1 سم</title>
+    <title>نظام طباعة ملصقات الصيدلية - السحابي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
         
-        /* إعدادات الطباعة المخصصة للملصقات 30 مم (3 سم) × 10 مم (1 سم) */
+        /* إعدادات الطباعة الدقيقة (إزالة كل الفراغات لملء المساحة) */
         @media print {
-            /* إخفاء كل شيء في الصفحة الأساسية */
             body, html {
                 margin: 0 !important;
                 padding: 0 !important;
@@ -22,7 +21,6 @@
                 display: none !important;
             }
             
-            /* إظهار منطقة الطباعة فقط */
             #print-area {
                 display: block !important;
                 width: 30mm;
@@ -42,252 +40,302 @@
                 box-sizing: border-box;
                 background-color: white;
                 margin: 0 !important;
+                padding: 0 !important;
                 border: none !important;
             }
 
-            /* تقسيم الملصق لنصفين: النصف العلوي للجرعة الأولى، والسفلي للثانية */
+            /* النصف ملصق (الجرعة الواحدة) بالضبط 5 ملم ارتفاع */
             .half-label {
-                height: 50%; /* 5 ملم لكل نصف */
+                height: 50%; /* 5 ملم */
+                width: 100%; /* 30 ملم */
+                display: flex;
+                flex-direction: row; 
+                box-sizing: border-box;
+                overflow: hidden;
+                border-bottom: 0.5px dashed #aaa; 
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .half-label:last-child { border-bottom: none; }
+
+            /* قسم اللوجو (اليمين) - 25% من العرض */
+            .logo-section {
+                width: 25%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-between; 
+                border-left: 1.5px solid #000;
+                box-sizing: border-box;
+                padding: 0 !important; 
+                margin: 0 !important;
+                background-color: #fff;
+                overflow: hidden;
+            }
+
+            .print-logo-img {
+                height: 75%; 
                 width: 100%;
+                object-fit: contain;
+                display: block;
+                margin: 0;
+                padding: 0;
+            }
+
+            .branch-text {
+                height: 25%;
+                width: 100%;
+                font-size: 5pt;
+                font-weight: 900;
+                color: #000;
+                line-height: 0.8; 
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* قسم النص (اليسار) - 75% من العرض */
+            .dosage-section {
+                width: 75%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 !important; 
+                margin: 0 !important;
+                box-sizing: border-box;
+                background-color: #fff;
+            }
+
+            /* تصميم النص الاحترافي الجديد (متراص فوق بعضه) */
+            .dosage-text-container {
+                width: 100%;
+                height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                box-sizing: border-box;
-                padding: 0 0.5mm;
-                overflow: hidden;
+                margin: 0;
+                padding: 0;
             }
 
-            .pharmacy-name {
-                font-size: 4.5pt; /* حجم خط مناسب لاسم الصيدلية */
+            .dose-part-1 {
+                font-size: 8pt;
                 font-weight: 900;
                 color: #000;
-                text-align: center;
                 line-height: 1;
-                margin-bottom: 0.5px;
-                white-space: nowrap;
             }
 
-            .dosage-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 2px; /* مسافة بسيطة بين اللوجو والنص */
-                width: 100%;
-            }
-
-            .dosage-text {
-                font-size: 5.5pt; /* خط عريض وواضح للجرعة */
+            .dose-part-2 {
+                font-size: 7.5pt;
                 font-weight: 900;
                 color: #000;
+                border-top: 1px solid #000;
+                border-bottom: 1px solid #000;
+                width: 90%;
                 text-align: center;
                 line-height: 1;
-                white-space: nowrap;
-                direction: rtl;
+                margin-top: 0.2mm;
+                margin-bottom: 0.2mm;
+                padding-top: 0.1mm;
+                padding-bottom: 0.1mm;
             }
 
-            /* إعدادات اللوجو المطبوع (صورة) */
-            .dosage-logo {
-                height: 3.5mm; /* ارتفاع مناسب جداً لنصف الملصق */
-                width: 3.5mm;
-                object-fit: contain;
-                display: inline-block;
+            .dose-part-3 {
+                font-size: 8pt;
+                font-weight: 900;
+                color: #000;
+                line-height: 1;
             }
 
-            /* إجبار الطابعة على هذا المقاس */
             @page {
                 size: 30mm 10mm;
                 margin: 0;
             }
         }
+        
+        .modal-hidden { display: none !important; }
+        
+        /* شريط التمرير المخصص */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen pb-10">
+<body class="min-h-screen pb-10 relative">
 
-    <div class="max-w-5xl mx-auto px-4 pt-8">
-        <!-- Header -->
-        <header class="bg-emerald-600 text-white rounded-2xl p-6 shadow-md mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="bg-white/20 p-3 rounded-xl text-3xl">💊</div>
+    <!-- الإشعار المنبثق -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-2xl transform transition-all duration-300 translate-y-20 opacity-0 z-50 flex items-center gap-3">
+        <span id="toast-icon" class="text-xl">✅</span>
+        <span id="toast-msg" class="font-bold text-sm">تم الحفظ</span>
+    </div>
+
+    <!-- نافذة الإعدادات (إدارة الفروع) -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm modal-hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg transform transition-all flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">🏢 إدارة الفروع (سحابي)</h3>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-red-500 transition text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-5 overflow-y-auto flex-grow space-y-6">
+                <!-- قائمة الفروع الحالية -->
                 <div>
-                    <h1 class="text-2xl font-bold">صيدلية د/وائل حافظ ـ ولاء</h1>
-                    <p class="text-emerald-100 text-sm">نظام طباعة الملصقات - مقاس 3 سم × 1 سم (مزدوج/مفرد)</p>
+                    <h4 class="font-bold text-gray-700 mb-3 text-sm">الفروع المسجلة (اختر الفرع النشط)</h4>
+                    <div id="branches-list" class="space-y-2">
+                        <!-- سيتم حقن الفروع هنا -->
+                        <div class="text-center text-gray-400 text-sm py-4">جاري التحميل...</div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200">
+
+                <!-- إضافة فرع جديد -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h4 class="font-bold text-emerald-700 mb-3 text-sm flex items-center gap-1"><span>➕</span> إضافة فرع جديد</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <input type="text" id="new-branch-name" placeholder="اسم الفرع (مثال: الشفاء)" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                        </div>
+                        <div>
+                            <input type="text" id="new-branch-logo" placeholder="رابط اللوجو (https://...)" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm text-left focus:ring-2 focus:ring-emerald-500 outline-none transition" dir="ltr">
+                        </div>
+                        <button onclick="addNewBranch()" class="w-full bg-gray-800 text-white font-bold py-2.5 rounded-lg hover:bg-gray-900 transition shadow text-sm">
+                            حفظ الفرع الجديد
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="window.print()" class="bg-white text-emerald-700 px-6 py-2 rounded-lg font-bold shadow-sm hover:bg-emerald-50 transition flex items-center gap-2">
-                    <span>🖨️</span> طباعة كل القائمة
+            
+            <div class="p-5 border-t bg-gray-50 flex gap-3 rounded-b-2xl">
+                <button onclick="closeSettings()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-md">
+                    إغلاق والعودة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="max-w-5xl mx-auto px-4 pt-8">
+        <header class="bg-gradient-to-l from-emerald-600 to-teal-700 text-white rounded-2xl p-6 shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div id="header-logo-container" class="bg-white p-2 rounded-xl h-14 w-14 flex items-center justify-center overflow-hidden">
+                    <span class="text-2xl">💊</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2">
+                        نظام الصيدلية 
+                        <span id="active-branch-badge" class="bg-white/20 text-xs px-2 py-1 rounded text-emerald-50">بدون فرع</span>
+                    </h1>
+                    <div class="flex items-center gap-2 text-emerald-100 text-sm mt-1">
+                        <span>مقاس 3 سم × 1 سم</span>
+                        <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full"></span>
+                        <span id="cloud-status">جاري الاتصال... ⏳</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 flex-wrap">
+                <button onclick="openSettings()" class="bg-white/10 backdrop-blur text-white px-5 py-2 rounded-lg font-bold shadow-sm hover:bg-white/20 transition flex items-center gap-2 border border-white/20">
+                    ⚙️ إدارة الفروع
+                </button>
+                <button onclick="window.print()" class="bg-white text-emerald-700 px-6 py-2 rounded-lg font-bold shadow-sm hover:bg-emerald-50 transition flex items-center gap-2 border-2 border-white">
+                    <span>🖨️</span> طباعة القائمة
                 </button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- العمود الأول: إدخال البيانات -->
-            <div class="lg:col-span-5 space-y-4">
-                
-                <!-- إعدادات الشعار -->
-                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                    <h2 class="font-bold text-gray-700 mb-2 text-sm">🖼️ رابط الشعار (اللوجو)</h2>
-                    <input type="text" id="logo-input" placeholder="أدخل رابط صورة اللوجو هنا..." class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm" value="" onchange="renderLabels()">
-                    <p class="text-[10px] text-gray-400 mt-1">يمكنك تركه فارغاً. وإذا أضفت رابط صورة، سيتم تطبيقها تلقائياً على كافة الملصقات.</p>
-                </div>
-
-                <!-- نموذج إضافة الجرعة -->
-                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                    <h2 class="font-bold text-gray-700 mb-4 flex items-center gap-2">➕ إضافة ملصق جديد</h2>
+            <!-- عمود الإدخال -->
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-8">
+                    <h2 class="font-bold text-gray-800 mb-5 flex items-center gap-2 text-lg">➕ إضافة جرعة جديدة</h2>
                     
-                    <div class="space-y-6">
-                        
-                        <!-- الجرعة الأولى -->
-                        <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
-                            <h3 class="font-bold text-emerald-800 mb-3 text-sm flex items-center gap-1">
-                                <span class="bg-emerald-200 text-emerald-800 rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span> 
-                                الجرعة الأولى (تُطبع في الجزء العلوي أساسي)
-                            </h3>
-                            <div class="space-y-3">
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1">الكمية</label>
-                                        <select id="d1-qty" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm">
-                                            <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1">الفئة</label>
-                                        <select id="d1-type" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm" onchange="toggleRouteField('d1')">
-                                            <option value="قرص">قرص</option>
-                                            <option value="كيس">كيس</option>
-                                            <option value="كبسولة">كبسولة</option>
-                                            <option value="معلقة">معلقة</option>
-                                            <option value="لبوسة">لبوسة</option>
-                                            <option value="حقنة">حقنة</option>
-                                            <option value="نقطة">نقطة</option>
-                                            <option value="بخة">بخة</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div id="d1-route-container" class="hidden">
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">الموضع</label>
-                                    <select id="d1-route" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm"></select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">التكرار</label>
-                                    <select id="d1-freq" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm">
-                                        <script>
-                                            for(let i=1; i<=24; i++) {
-                                                let label = i === 24 ? "مرة يومياً" : `كل ${i} ساعة`;
-                                                document.write(`<option value="${i}">${label}</option>`);
-                                            }
-                                        </script>
-                                    </select>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1">المدة (رقم)</label>
-                                        <input type="number" id="d1-dur-val" placeholder="مثال: 5" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm text-center">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-600 mb-1">الوحدة</label>
-                                        <select id="d1-dur-unit" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm">
-                                            <option value="أيام">أيام</option>
-                                            <option value="أسابيع">أسابيع</option>
-                                            <option value="شهر">شهر</option>
-                                        </select>
-                                    </div>
-                                </div>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الكمية</label>
+                                <select id="input-qty" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الفئة</label>
+                                <select id="input-type" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none" onchange="toggleRouteField()">
+                                    <option value="قرص">قرص</option>
+                                    <option value="كيس">كيس</option>
+                                    <option value="كبسولة">كبسولة</option>
+                                    <option value="معلقة">معلقة</option>
+                                    <option value="لبوسة">لبوسة</option>
+                                    <option value="حقنة">حقنة</option>
+                                    <option value="نقطة">نقطة</option>
+                                    <option value="بخة">بخة</option>
+                                </select>
                             </div>
                         </div>
 
-                        <!-- الجرعة الثانية -->
-                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                            <h3 class="font-bold text-gray-600 mb-3 text-sm flex items-center gap-1">
-                                <span class="bg-gray-200 text-gray-600 rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span> 
-                                الجرعة الثانية (تُطبع في الجزء السفلي - اختياري)
-                            </h3>
-                            <div class="space-y-3">
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 mb-1">الكمية</label>
-                                        <select id="d2-qty" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm">
-                                            <option value="">-</option>
-                                            <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 mb-1">الفئة</label>
-                                        <select id="d2-type" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm" onchange="toggleRouteField('d2')">
-                                            <option value="قرص">قرص</option>
-                                            <option value="كيس">كيس</option>
-                                            <option value="كبسولة">كبسولة</option>
-                                            <option value="معلقة">معلقة</option>
-                                            <option value="لبوسة">لبوسة</option>
-                                            <option value="حقنة">حقنة</option>
-                                            <option value="نقطة">نقطة</option>
-                                            <option value="بخة">بخة</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        <div id="route-container" class="hidden">
+                            <label class="block text-xs font-bold text-gray-500 mb-1">الموضع (التفاصيل)</label>
+                            <select id="input-route" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+                        </div>
 
-                                <div id="d2-route-container" class="hidden">
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">الموضع</label>
-                                    <select id="d2-route" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm"></select>
-                                </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">التكرار (سيتم تحويله تلقائياً)</label>
+                            <select id="input-freq" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <option value="24">كل 24 ساعة (مرة واحدة)</option>
+                                <option value="12">كل 12 ساعة (مرتين)</option>
+                                <option value="8" selected>كل 8 ساعات (3 مرات)</option>
+                                <option value="6">كل 6 ساعات (4 مرات)</option>
+                                <option value="4">كل 4 ساعات (6 مرات)</option>
+                            </select>
+                        </div>
 
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-500 mb-1">التكرار</label>
-                                    <select id="d2-freq" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm">
-                                        <script>
-                                            for(let i=1; i<=24; i++) {
-                                                let label = i === 24 ? "مرة يومياً" : `كل ${i} ساعة`;
-                                                document.write(`<option value="${i}">${label}</option>`);
-                                            }
-                                        </script>
-                                    </select>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 mb-1">المدة (رقم)</label>
-                                        <input type="number" id="d2-dur-val" placeholder="اختياري" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm text-center">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 mb-1">الوحدة</label>
-                                        <select id="d2-dur-unit" class="w-full border border-gray-200 rounded-lg p-2 bg-white text-sm">
-                                            <option value="أيام">أيام</option>
-                                            <option value="أسابيع">أسابيع</option>
-                                            <option value="شهر">شهر</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">المدة (رقم)</label>
+                                <input type="number" id="input-dur-val" placeholder="مثال: 5" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none text-center">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">الوحدة</label>
+                                <select id="input-dur-unit" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none">
+                                    <option value="أيام">أيام</option>
+                                    <option value="أسابيع">أسابيع</option>
+                                    <option value="شهر">شهر</option>
+                                </select>
                             </div>
                         </div>
 
-                        <button onclick="addLabel()" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2">
-                            <span>➕</span> إضافة للملصقات الجاهزة
+                        <button onclick="addDosage()" class="w-full bg-emerald-600 text-white font-black text-lg py-3.5 rounded-xl hover:bg-emerald-700 transition shadow-lg mt-2 flex justify-center items-center gap-2">
+                            <span>إضافة للقائمة</span> <span>↵</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- العمود الثاني: قائمة الملصقات -->
-            <div class="lg:col-span-7">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col">
-                    <div class="p-4 border-b bg-gray-50/50 flex justify-between items-center">
-                        <h2 class="font-bold text-gray-700">قائمة الملصقات الجاهزة للطباعة</h2>
-                        <span id="label-count" class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-full">0 ملصق</span>
+            <!-- عمود قائمة الملصقات -->
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
+                    <div class="p-5 border-b bg-gray-50/80 flex justify-between items-center rounded-t-2xl">
+                        <div>
+                            <h2 class="font-bold text-gray-800 text-lg">قائمة الجرعات المضافة</h2>
+                            <p class="text-xs text-gray-500 mt-1">يظهر النص بتصميم (--- فوق بعض) الاحترافي.</p>
+                        </div>
+                        <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full shadow-inner">0 جرعة</span>
                     </div>
                     
-                    <div id="labels-list" class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div id="labels-list" class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- العناصر ستظهر هنا -->
                     </div>
 
                     <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-gray-400 p-10">
-                        <span class="text-5xl mb-2">📋</span>
-                        <p>القائمة فارغة، قم بإضافة الجرعات</p>
+                        <span class="text-6xl mb-4 opacity-50">📋</span>
+                        <p class="font-bold text-lg">القائمة فارغة</p>
+                        <p class="text-sm mt-1">أضف جرعة من القائمة الجانبية لتبدأ.</p>
                     </div>
                 </div>
             </div>
@@ -297,176 +345,346 @@
     <!-- منطقة الطباعة المخفية -->
     <div id="print-area" class="hidden"></div>
 
-    <script>
-        let labelsList = [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // إعدادات Firebase الخاصة بالمستخدم
+        const customFirebaseConfig = {
+            apiKey: "AIzaSyCnd79VgkCFO_ySrtknuYFNbRO9ADDCScI",
+            authDomain: "leabl-705b3.firebaseapp.com",
+            databaseURL: "https://leabl-705b3-default-rtdb.firebaseio.com",
+            projectId: "leabl-705b3",
+            storageBucket: "leabl-705b3.firebasestorage.app",
+            messagingSenderId: "1063041699640",
+            appId: "1:1063041699640:web:7182a59163beee03b57bcd",
+            measurementId: "G-RY9XBFQ8LE"
+        };
+
+        // المتغيرات العامة
+        window.dosagesArray = [];
+        window.branches = [];
+        window.activeBranchId = null;
+        window.currentUser = null;
+        let db, auth, appId = 'pharmacy-labels-pro';
+        
         const routesMap = {
             'لبوسة': ['شرجي', 'مهبلي'],
             'نقطة': ['بالعين', 'بالأذن', 'بالفم'],
             'بخة': ['بالفم', 'بالأنف', 'موضعي']
         };
 
-        // تفعيل أو إخفاء حقل الموضع بناءً على الفئة
-        function toggleRouteField(prefix) {
-            const type = document.getElementById(`${prefix}-type`).value;
-            const container = document.getElementById(`${prefix}-route-container`);
-            const select = document.getElementById(`${prefix}-route`);
+        // وظائف التهيئة وقاعدة البيانات
+        try {
+            const app = initializeApp(customFirebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            const initAuth = async () => {
+                try {
+                    await signInAnonymously(auth);
+                } catch(e) {
+                    console.error("Auth Error:", e);
+                }
+            };
             
+            initAuth();
+
+            onAuthStateChanged(auth, (user) => {
+                window.currentUser = user;
+                if (user) {
+                    document.getElementById('cloud-status').innerHTML = "متصل بالسحابة ☁️";
+                    document.getElementById('cloud-status').classList.replace('text-emerald-100', 'text-green-300');
+
+                    // جلب إعدادات الفروع من Firestore
+                    const settingsRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings');
+                    onSnapshot(settingsRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            window.branches = data.branches || [];
+                            window.activeBranchId = data.activeBranchId || null;
+                            
+                            updateUIWithActiveBranch();
+                            renderBranchesList();
+                            window.renderLabels();
+                        } else {
+                            // إنشاء فرع افتراضي إذا لم يكن هناك بيانات
+                            window.branches = [{ id: Date.now().toString(), name: "ولاء", logo: "" }];
+                            window.activeBranchId = window.branches[0].id;
+                            saveDataToCloud();
+                        }
+                    }, (error) => {
+                        console.error("Firestore error:", error);
+                    });
+                }
+            });
+        } catch (e) {
+            console.error("Firebase Error", e);
+            document.getElementById('cloud-status').innerText = "وضع عدم الاتصال 🚫";
+            window.branches = [{ id: '1', name: "الفرع المحلي", logo: "" }];
+            window.activeBranchId = '1';
+            updateUIWithActiveBranch();
+            renderBranchesList();
+        }
+
+        // حفظ البيانات في السحابة
+        async function saveDataToCloud() {
+            if (window.currentUser && db) {
+                try {
+                    const settingsRef = doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'settings');
+                    await setDoc(settingsRef, {
+                        branches: window.branches,
+                        activeBranchId: window.activeBranchId,
+                        updatedAt: new Date().toISOString()
+                    });
+                } catch (error) {
+                    console.error("Error saving:", error);
+                }
+            }
+        }
+
+        // تحديث الواجهة بالفرع النشط
+        function updateUIWithActiveBranch() {
+            const active = window.branches.find(b => b.id === window.activeBranchId);
+            const badge = document.getElementById('active-branch-badge');
+            const headerLogo = document.getElementById('header-logo-container');
+            
+            if (active) {
+                badge.innerText = `فرع: ${active.name}`;
+                badge.classList.replace('bg-white/20', 'bg-emerald-800');
+                
+                if(active.logo) {
+                    headerLogo.innerHTML = `<img src="${active.logo}" class="w-full h-full object-contain" onerror="this.src=''; this.alt='💊'">`;
+                } else {
+                    headerLogo.innerHTML = `<span class="text-2xl font-bold text-emerald-600">${active.name.charAt(0)}</span>`;
+                }
+            }
+        }
+
+        // عرض قائمة الفروع في الإعدادات
+        function renderBranchesList() {
+            const list = document.getElementById('branches-list');
+            if(window.branches.length === 0) {
+                list.innerHTML = `<div class="text-center text-gray-500 py-3 text-sm">لا توجد فروع مضافة.</div>`;
+                return;
+            }
+
+            list.innerHTML = window.branches.map(branch => {
+                const isActive = branch.id === window.activeBranchId;
+                return `
+                <div class="flex items-center justify-between p-3 border rounded-xl ${isActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 bg-white'} transition">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="branch-select" ${isActive ? 'checked' : ''} onchange="setActiveBranch('${branch.id}')" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                        <div class="w-8 h-8 rounded bg-white border flex items-center justify-center overflow-hidden shrink-0">
+                            ${branch.logo ? `<img src="${branch.logo}" class="w-full h-full object-contain">` : `<span class="text-xs text-gray-400">بدون</span>`}
+                        </div>
+                        <span class="font-bold text-gray-800 text-sm">${branch.name}</span>
+                    </div>
+                    <button onclick="deleteBranch('${branch.id}')" class="text-red-400 hover:text-red-600 p-1 transition" title="حذف">🗑️</button>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // عمليات الفروع
+        window.addNewBranch = function() {
+            const nameInput = document.getElementById('new-branch-name');
+            const logoInput = document.getElementById('new-branch-logo');
+            const name = nameInput.value.trim();
+            const logo = logoInput.value.trim();
+
+            if(!name) { window.showToast("يجب إدخال اسم الفرع", true); return; }
+
+            const newBranch = { id: Date.now().toString(), name, logo };
+            window.branches.push(newBranch);
+            
+            // إذا كان هذا أول فرع، اجعله النشط
+            if(window.branches.length === 1) {
+                window.activeBranchId = newBranch.id;
+            }
+
+            nameInput.value = '';
+            logoInput.value = '';
+            
+            saveDataToCloud();
+            renderBranchesList();
+            window.showToast("تم إضافة الفرع بنجاح");
+        };
+
+        window.setActiveBranch = function(id) {
+            window.activeBranchId = id;
+            saveDataToCloud();
+            updateUIWithActiveBranch();
+            window.renderLabels();
+            window.showToast("تم تغيير الفرع النشط");
+        };
+
+        window.deleteBranch = function(id) {
+            if(confirm("هل أنت متأكد من حذف هذا الفرع؟")) {
+                window.branches = window.branches.filter(b => b.id !== id);
+                if(window.activeBranchId === id) {
+                    window.activeBranchId = window.branches.length > 0 ? window.branches[0].id : null;
+                }
+                saveDataToCloud();
+                renderBranchesList();
+                updateUIWithActiveBranch();
+                window.renderLabels();
+                window.showToast("تم الحذف");
+            }
+        };
+
+        // --- نوافذ وتنبيهات ---
+        window.openSettings = () => document.getElementById('settings-modal').classList.remove('modal-hidden');
+        window.closeSettings = () => document.getElementById('settings-modal').classList.add('modal-hidden');
+        
+        window.showToast = function(message, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            document.getElementById('toast-icon').innerText = isError ? '❌' : '✅';
+            toast.classList.replace(isError ? 'bg-gray-800' : 'bg-red-600', isError ? 'bg-red-600' : 'bg-gray-800');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        };
+
+        // --- وظائف الإدخال والجرعات ---
+        window.toggleRouteField = function() {
+            const type = document.getElementById('input-type').value;
+            const container = document.getElementById('route-container');
+            const select = document.getElementById('input-route');
             if (routesMap[type]) {
                 container.classList.remove('hidden');
                 select.innerHTML = routesMap[type].map(r => `<option value="${r}">${r}</option>`).join('');
             } else {
                 container.classList.add('hidden');
-                select.innerHTML = '';
+            }
+        };
+
+        // تحويل التكرار الزمني إلى نصوص واضحة للمريض
+        function getFrequencyText(hours) {
+            switch(hours) {
+                case "24": return "مرة واحدة";
+                case "12": return "مرتين";
+                case "8": return "3 مرات";
+                case "6": return "4 مرات";
+                case "4": return "6 مرات";
+                default: return `كل ${hours}س`;
             }
         }
 
-        // قراءة بيانات جرعة معينة
-        function getDosageText(prefix) {
-            const qty = document.getElementById(`${prefix}-qty`).value;
-            const type = document.getElementById(`${prefix}-type`).value;
-            const routeEl = document.getElementById(`${prefix}-route`);
+        window.addDosage = function() {
+            const qty = document.getElementById('input-qty').value;
+            const type = document.getElementById('input-type').value;
+            const routeEl = document.getElementById('input-route');
             const route = !routeEl.parentElement.classList.contains('hidden') ? routeEl.value : '';
-            const freq = document.getElementById(`${prefix}-freq`).value;
-            const durVal = document.getElementById(`${prefix}-dur-val`).value;
-            const durUnit = document.getElementById(`${prefix}-dur-unit`).value;
+            const freq = document.getElementById('input-freq').value;
+            const durVal = document.getElementById('input-dur-val').value;
+            const durUnit = document.getElementById('input-dur-unit').value;
 
-            if (!durVal) return null;
+            if (!durVal) { window.showToast("يرجى إدخال مدة العلاج", true); return; }
 
-            let freqText = freq === "24" ? "مرة يومياً" : `كل${freq}س`;
-            return `${qty}${type} ${route ? route + ' ' : ''}${freqText} لـ${durVal}${durUnit}`.trim();
-        }
-
-        // إضافة ملصق جديد (قد يحتوي على جرعة أو اثنتين)
-        function addLabel() {
-            const dosage1 = getDosageText('d1');
-            const dosage2 = getDosageText('d2');
-
-            if (!dosage1) {
-                alert("يرجى إدخال مدة العلاج للجرعة الأولى على الأقل.");
-                return;
-            }
+            // تقسيم النص لثلاثة أجزاء للتصميم המתراص (فوق بعض)
+            const part1 = `${qty} ${type} ${route ? route : ''}`.trim();
+            const part2 = getFrequencyText(freq);
+            const part3 = `لـ ${durVal} ${durUnit}`;
 
             const id = Date.now();
-            labelsList.push({ id, text1: dosage1, text2: dosage2 });
-            renderLabels();
+            window.dosagesArray.push({ id, part1, part2, part3 });
             
-            // تفريغ المدة فقط لتسهيل الإدخال التالي
-            document.getElementById('d1-dur-val').value = '';
-            document.getElementById('d2-dur-val').value = '';
-            document.getElementById('d2-qty').value = ''; // تصفير الجرعة الاختيارية
-        }
+            document.getElementById('input-dur-val').value = '';
+            window.renderLabels();
+        };
 
-        // حذف ملصق
-        function removeLabel(id) {
-            labelsList = labelsList.filter(d => d.id !== id);
-            renderLabels();
-        }
+        window.removeDosage = function(id) {
+            window.dosagesArray = window.dosagesArray.filter(d => d.id !== id);
+            window.renderLabels();
+        };
 
-        // طباعة ملصق واحد فقط
-        function printSingleLabel(id) {
-            const allLabels = document.querySelectorAll('.label-page');
-            allLabels.forEach(label => label.style.display = 'none');
-            
-            const targetLabel = document.getElementById(`print-label-${id}`);
-            if (targetLabel) {
-                targetLabel.style.display = 'flex';
-                window.print();
-            }
-            
-            allLabels.forEach(label => label.style.display = 'flex');
-        }
-
-        // رسم الواجهة ومنطقة الطباعة
-        function renderLabels() {
+        // --- وظيفة الرسم والطباعة ---
+        window.renderLabels = function() {
             const list = document.getElementById('labels-list');
             const printArea = document.getElementById('print-area');
             const emptyState = document.getElementById('empty-state');
             const countBadge = document.getElementById('label-count');
             
-            // قراءة رابط اللوجو
-            const logoUrl = document.getElementById('logo-input').value.trim();
-            // تجهيز عناصر اللوجو (إذا كان الرابط غير موجود سيتم الإخفاء تلقائياً باستخدام onerror او display:none)
-            const uiLogoImg = logoUrl ? `<img src="${logoUrl}" class="h-4 w-4 object-contain" onerror="this.style.display='none'" alt="Logo">` : '';
-            const printLogoImg = logoUrl ? `<img src="${logoUrl}" class="dosage-logo" onerror="this.style.display='none'" alt="">` : '';
-
             list.innerHTML = '';
             printArea.innerHTML = '';
-            countBadge.innerText = `${labelsList.length} ملصق`;
+            countBadge.innerText = `${window.dosagesArray.length} جرعة`;
 
-            if (labelsList.length === 0) {
+            const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "", logo: ""};
+
+            // HTML الخاص بالطباعة الدقيقة
+            const branchHtml = activeBranch.name ? `<div class="branch-text">${activeBranch.name}</div>` : '';
+            const logoHtml = activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img" onerror="this.style.display='none'">` : '';
+            const combinedSideHtml = `${logoHtml}${branchHtml}`; 
+
+            // HTML الخاص بمعاينة الواجهة
+            const uiBranchHtml = activeBranch.name ? `<div class="text-[11px] font-black text-gray-900 leading-none h-1/4 flex items-center justify-center w-full">${activeBranch.name}</div>` : '';
+            const uiLogoHtml = activeBranch.logo ? `<img src="${activeBranch.logo}" class="h-3/4 w-full object-contain" onerror="this.style.display='none'">` : `<span class="text-xs h-3/4 flex items-center justify-center">⚕️</span>`;
+
+            if (window.dosagesArray.length === 0) {
                 emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                
-                labelsList.forEach(item => {
-                    // 1. إنشاء البطاقة في واجهة المستخدم للمعاينة
-                    const card = document.createElement('div');
-                    card.className = "bg-white border border-gray-200 rounded-xl p-3 shadow-sm relative group flex flex-col justify-between";
+                return; 
+            } 
+            
+            emptyState.classList.add('hidden');
+
+            // 1. رسم المعاينة في المتصفح
+            window.dosagesArray.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white border-2 border-emerald-100 rounded-lg p-2 shadow-sm relative group";
+                card.innerHTML = `
+                    <button onclick="removeDosage(${item.id})" class="absolute -top-2 -left-2 bg-red-100 text-red-500 hover:bg-red-500 hover:text-white transition rounded-full w-7 h-7 flex items-center justify-center font-bold z-10 opacity-0 group-hover:opacity-100 shadow-sm" title="حذف">✕</button>
                     
-                    let uiContent = `
-                        <button onclick="removeLabel(${item.id})" class="absolute top-2 left-2 text-red-400 opacity-0 group-hover:opacity-100 transition bg-red-50 rounded-full w-6 h-6 flex items-center justify-center" title="حذف">✕</button>
-                        <div class="mb-3 space-y-2">
-                            <div class="bg-emerald-50 rounded p-2 text-center border border-emerald-100">
-                                <div class="text-[9px] font-bold text-gray-500 mb-1">صيدلية د/وائل حافظ ـ ولاء</div>
-                                <div class="text-sm font-bold text-gray-800 flex justify-center items-center gap-1">
-                                    <span>${item.text1}</span> ${uiLogoImg}
-                                </div>
-                            </div>
-                    `;
-
-                    if (item.text2) {
-                        uiContent += `
-                            <div class="bg-gray-50 rounded p-2 text-center border border-gray-200 border-dashed">
-                                <div class="text-[9px] font-bold text-gray-400 mb-1">صيدلية د/وائل حافظ ـ ولاء</div>
-                                <div class="text-sm font-bold text-gray-700 flex justify-center items-center gap-1">
-                                    <span>${item.text2}</span> ${uiLogoImg}
-                                </div>
-                            </div>
-                        `;
-                    }
-
-                    uiContent += `
+                    <div class="flex border border-gray-400 rounded-sm overflow-hidden bg-white h-16 w-full">
+                        <div class="w-1/4 border-l border-gray-400 flex flex-col items-center justify-between bg-white p-0.5">
+                            ${uiLogoHtml}
+                            ${uiBranchHtml}
                         </div>
-                        <button onclick="printSingleLabel(${item.id})" class="w-full mt-auto bg-gray-100 text-gray-700 text-xs font-bold py-2 rounded hover:bg-emerald-100 hover:text-emerald-700 transition flex items-center justify-center gap-1">
-                            <span>🖨️</span> طباعة هذا الملصق
-                        </button>
-                    `;
-                    card.innerHTML = uiContent;
-                    list.appendChild(card);
+                        <div class="w-3/4 flex flex-col items-center justify-center bg-white p-1 leading-none text-black">
+                            <span class="text-sm font-black">${item.part1}</span>
+                            <span class="text-xs font-black border-y-2 border-black w-4/5 text-center my-0.5 py-0.5">${item.part2}</span>
+                            <span class="text-sm font-black">${item.part3}</span>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
 
-                    // 2. إنشاء الملصق في منطقة الطباعة المخفية (مقاس الطباعة الفعلي)
-                    const printLabel = document.createElement('div');
-                    printLabel.className = "label-page";
-                    printLabel.id = `print-label-${item.id}`;
-                    
-                    let printHtml = `
-                        <!-- النصف العلوي (يطبع فوق خط القطع) -->
-                        <div class="half-label">
-                            <div class="pharmacy-name">صيدلية د/وائل حافظ ـ ولاء</div>
-                            <div class="dosage-container">
-                                <span class="dosage-text">${item.text1}</span>
-                                ${printLogoImg}
+            // 2. بناء منطقة الطباعة
+            for (let i = 0; i < window.dosagesArray.length; i += 2) {
+                const dose1 = window.dosagesArray[i];
+                const dose2 = window.dosagesArray[i + 1]; 
+
+                const printPage = document.createElement('div');
+                printPage.className = "label-page";
+
+                const buildHalfLabel = (item) => `
+                    <div class="half-label">
+                        <div class="logo-section">
+                            ${combinedSideHtml}
+                        </div>
+                        <div class="dosage-section">
+                            <div class="dosage-text-container">
+                                <div class="dose-part-1">${item.part1}</div>
+                                <div class="dose-part-2">${item.part2}</div>
+                                <div class="dose-part-3">${item.part3}</div>
                             </div>
                         </div>
-                        <!-- النصف السفلي -->
-                        <div class="half-label">
-                    `;
+                    </div>
+                `;
 
-                    // إذا كانت هناك جرعة ثانية، ستُطبع في النصف السفلي
-                    if (item.text2) {
-                        printHtml += `
-                            <div class="pharmacy-name">صيدلية د/وائل حافظ ـ ولاء</div>
-                            <div class="dosage-container">
-                                <span class="dosage-text">${item.text2}</span>
-                                ${printLogoImg}
-                            </div>
-                        `;
-                    }
-                    
-                    printHtml += `</div>`; // إغلاق النصف السفلي
-                    printLabel.innerHTML = printHtml;
-                    printArea.appendChild(printLabel);
-                });
+                let pageHtml = "";
+                pageHtml += buildHalfLabel(dose1);
+
+                if (dose2) {
+                    pageHtml += buildHalfLabel(dose2);
+                } else {
+                    pageHtml += `<div class="half-label"></div>`;
+                }
+
+                printPage.innerHTML = pageHtml;
+                printArea.appendChild(printPage);
             }
         }
     </script>
