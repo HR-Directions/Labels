@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #f1f5f9; /* Slate 100 - Clean background */
-            --accent: #0f172a; /* Slate 900 - Dark professional accent */
+            --bg-body: #f1f5f9;
+            --accent: #0f172a;
         }
         body { 
             font-family: 'Tajawal', sans-serif; 
@@ -45,7 +45,6 @@
                 box-sizing: border-box; overflow: hidden; padding: 0.2mm 0; 
             }
 
-            /* --- تم توسيع مساحة اللوجو لتصبح 8.5 ملم --- */
             .logo-section { 
                 width: 8.5mm; 
                 height: 100%; display: flex; flex-direction: column; align-items: center; 
@@ -53,15 +52,12 @@
                 padding-right: 0.1mm; padding-left: 0.4mm; overflow: hidden; 
             }
 
-            /* --- إعدادات اللوجو للوضوح الفائق --- */
             .print-logo-img { 
                 width: 100%; 
                 height: auto; 
-                max-height: 9.5mm; /* ارتفاع أكبر لملء المساحة */
+                max-height: 9.5mm; 
                 object-fit: contain; display: block; 
-                /* فلاتر تباين الطابعات الحرارية */
                 filter: grayscale(100%) contrast(1.3) brightness(0.95); 
-                /* منع التشوش وجعل الحواف حادة */
                 image-rendering: -moz-crisp-edges; 
                 image-rendering: -o-crisp-edges; 
                 image-rendering: -webkit-optimize-contrast; 
@@ -75,7 +71,6 @@
                 text-align: center; white-space: nowrap; margin-top: 0; width: 100%; overflow: hidden; 
             }
 
-            /* --- تم تقليل مساحة النص لتناسب توسيع اللوجو --- */
             .dosage-section { 
                 width: 21.5mm; 
                 height: 100%; display: flex; align-items: center; justify-content: center; 
@@ -89,12 +84,9 @@
         }
         /* ========================================== */
         
-        .modal-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
-        
         .slide-down { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 100px; opacity: 1; overflow: hidden; transform: translateY(0); }
         .slide-up { max-height: 0; opacity: 0; margin: 0 !important; padding: 0 !important; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(-10px); }
         
-        /* Modern Solid Select (No visible borders until focus) */
         select, input[type="text"], input[type="number"] {
             background-color: #f1f5f9;
             border: 1px solid transparent;
@@ -117,13 +109,15 @@
 </head>
 <body class="min-h-screen pb-12 relative selection:bg-slate-800 selection:text-white">
 
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl transform transition-all duration-400 translate-y-24 opacity-0 z-50 flex items-center gap-3 border border-slate-700">
+    <!-- رسالة الإشعار -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl transform transition-all duration-400 translate-y-24 opacity-0 z-50 flex items-center gap-3 border border-slate-700 pointer-events-none">
         <div id="toast-icon" class="flex items-center justify-center w-5 h-5 rounded-full bg-white text-slate-900 text-xs font-black">✓</div>
         <span id="toast-msg" class="font-bold text-sm">تم الإجراء بنجاح</span>
     </div>
 
-    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center backdrop-blur-sm transition-all duration-300 modal-hidden p-4">
-        <div class="bg-white rounded-3xl w-full max-w-md transform transition-all flex flex-col max-h-[85vh] shadow-2xl scale-95 opacity-0 group-[.is-active]:scale-100 group-[.is-active]:opacity-100">
+    <!-- نافذة الإعدادات (تم إصلاحها برمجياً لضمان الظهور السليم) -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div id="settings-content" class="bg-white rounded-3xl w-full max-w-md transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh] shadow-2xl">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
                 <h3 class="text-xl font-black text-slate-900 tracking-tight">الفروع والإعدادات</h3>
                 <button onclick="closeSettings()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
@@ -191,7 +185,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <div class="lg:col-span-4 sticky top-6">
+            <div class="lg:col-span-5 sticky top-6">
                 <div class="bg-white rounded-3xl p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-slate-100">
                     <h2 class="font-black text-slate-900 text-lg mb-6">تفاصيل الجرعة</h2>
                     
@@ -234,7 +228,8 @@
                             </select>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
+                        <!-- تم إضافة وتعديل خانات التكرار والتوقيت والفاصل الزمني -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-400 mb-1.5">التكرار</label>
                                 <select id="input-freq" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
@@ -253,15 +248,28 @@
                                     <option value="" selected>بدون</option>
                                     <option value="كل">كل</option>
                                     <option value="قبل الأكل">قبل الأكل</option>
-                                    <option value="بعد الأكل">بعد الأكل</optio>
+                                    <option value="بعد الأكل">بعد الأكل</option>
                                     <option value="قبل النوم">قبل النوم</option>
                                     <option value="على الريق">على الريق</option>
                                     <option value="قبل الفطار">قبل الفطار </option>
-طار                                  <option value="بعد الفطار">بعد الفطار</option>
+                                    <option value="بعد الفطار">بعد الفطار</option>
                                     <option value="قبل الغداء">قبل الغداء</option>
                                     <option value="بعد الغداء">بعد الغداء</option>
                                     <option value="قبل العشاء">قبل العشاء</option>
                                     <option value="بعد العشاء">بعد العشاء</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">الفاصل الزمني</label>
+                                <select id="input-timing-offset" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value="بـ 5 دقائق">بـ 5 دقائق</option>
+                                    <option value="بـ 10 دقائق">بـ 10 دقائق</option>
+                                    <option value="بـ ربع ساعة">بـ ربع ساعة</option>
+                                    <option value="بـ ثلث ساعة">بـ ثلث ساعة</option>
+                                    <option value="بـ نصف ساعة">بـ نصف ساعة</option>
+                                    <option value="بـ ساعة">بـ ساعة</option>
+                                    <option value="بـ ساعتين">بـ ساعتين</option>
                                 </select>
                             </div>
                         </div>
@@ -293,7 +301,7 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-8 flex flex-col h-full">
+            <div class="lg:col-span-7 flex flex-col h-full">
                 <div class="bg-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-slate-100 flex-grow flex flex-col overflow-hidden min-h-[500px]">
                     
                     <div class="px-7 py-6 border-b border-slate-100 flex justify-between items-center">
@@ -304,8 +312,8 @@
                         </div>
                     </div>
                     
-                    <div id="labels-list" class="p-7 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 content-start flex-grow bg-slate-50/50">
-                        </div>
+                    <div id="labels-list" class="p-7 grid grid-cols-1 xl:grid-cols-2 gap-4 content-start flex-grow bg-slate-50/50">
+                    </div>
 
                     <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-slate-400 p-10 bg-slate-50/50">
                         <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-slate-100">
@@ -473,16 +481,26 @@
             }
         };
 
+        // تم إصلاح الـ Modal ليعمل بسلاسة دون أخطاء
         window.openSettings = () => {
             const modal = document.getElementById('settings-modal');
-            modal.classList.remove('modal-hidden');
-            setTimeout(() => modal.firstElementChild.classList.add('group', 'is-active'), 10);
+            const content = document.getElementById('settings-content');
+            
+            // تحديث القائمة قبل الظهور لضمان عدم وجود شاشة فارغة
+            renderBranchesList(); 
+            
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
         };
         
         window.closeSettings = () => {
             const modal = document.getElementById('settings-modal');
-            modal.firstElementChild.classList.remove('is-active');
-            setTimeout(() => modal.classList.add('modal-hidden'), 300);
+            const content = document.getElementById('settings-content');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
         };
         
         window.showToast = function(message, isError = false) {
@@ -552,6 +570,7 @@
             
             const freq = document.getElementById('input-freq').value;
             const timing = document.getElementById('input-timing').value;
+            const timingOffset = document.getElementById('input-timing-offset').value; // جلب قيمة الفاصل الزمني
             const durVal = document.getElementById('input-dur-val').value;
             const durUnit = document.getElementById('input-dur-unit').value;
             
@@ -571,6 +590,7 @@
             
             let rawLine1 = line1Parts.join(" ");
 
+            // دمج الفاصل الزمني مع التوقيت بذكاء
             let line2Parts = [];
             if (timing === 'كل') {
                 if (durVal) {
@@ -579,7 +599,16 @@
                     line2Parts.push(`كل`);
                 }
             } else {
-                if (timing) line2Parts.push(timing);
+                let timingCombined = timing;
+                
+                // إضافة الفاصل الزمني بجانب التوقيت (مثال: قبل الأكل بـ نصف ساعة)
+                if (timing && timingOffset) {
+                    timingCombined = `${timing} ${timingOffset}`;
+                } else if (!timing && timingOffset) {
+                    timingCombined = timingOffset; // إذا اختار الفاصل الزمني فقط
+                }
+
+                if (timingCombined) line2Parts.push(timingCombined);
                 if (durVal) line2Parts.push(`لمدة ${durVal} ${durUnit}`);
             }
             
@@ -595,10 +624,12 @@
 
             window.dosagesArray.push({ id: Date.now(), line1, line2 });
             
+            // تفريغ الحقول بعد الإضافة
             document.getElementById('input-qty').value = '';
             document.getElementById('input-type').value = '';
             document.getElementById('input-freq').value = '';
             document.getElementById('input-timing').value = '';
+            document.getElementById('input-timing-offset').value = ''; // تفريغ الفاصل الزمني
             document.getElementById('input-dur-val').value = '';
             handleQtyChange(); 
             
@@ -626,7 +657,6 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
-            // شكل البطاقة يحاكي الملصق الحقيقي (Sticker Mockup)
             window.dosagesArray.forEach((item) => {
                 let combinedText = "";
                 if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
@@ -650,7 +680,6 @@
                 list.appendChild(card);
             });
 
-            // كود الطباعة المحسن
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -712,6 +741,5 @@
     </script>
 </body>
 </html>
-
 
 
