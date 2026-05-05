@@ -4,230 +4,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Dosage barcode printer </title>
+    <title>نظام الطباعة المتقدم</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        :root {
+            --bg-body: #f1f5f9; /* Slate 100 - Clean background */
+            --accent: #0f172a; /* Slate 900 - Dark professional accent */
+        }
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: var(--bg-body); 
+            color: #0f172a; 
+            -webkit-font-smoothing: antialiased;
+        }
         
-        /* إعدادات الطباعة الدقيقة والاحترافية المقفلة تماماً */
+        /* Custom Minimalist Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ==========================================
+           إعدادات الطباعة الاحترافية للطابعات الحرارية
+           ========================================== */
         @media print {
-            @page {
-                size: 30mm 20mm; 
-                margin: 0;
-            }
+            @page { size: 30mm 20mm; margin: 0; }
+            body, html { margin: 0 !important; padding: 0 !important; background-color: white !important; }
+            body > *:not(#print-area) { display: none !important; }
+            #print-area { display: block !important; width: 30mm; margin: 0; padding: 0; }
             
-            body, html {
-                margin: 0 !important;
-                padding: 0 !important;
-                background-color: white !important;
+            .label-page { 
+                width: 30mm; height: 20mm; display: flex; flex-direction: column; 
+                page-break-after: always; page-break-inside: avoid; overflow: hidden; 
+                box-sizing: border-box; background-color: white; margin: 0 !important; 
+                padding: 0 !important; border: none !important; 
             }
-            
-            body > *:not(#print-area) {
-                display: none !important;
-            }
-            
-            #print-area {
-                display: block !important;
-                width: 30mm;
-                margin: 0;
-                padding: 0;
+            .single-sticker { 
+                width: 30mm; height: 10mm; display: flex; flex-direction: row; 
+                box-sizing: border-box; overflow: hidden; padding: 0.2mm 0; 
             }
 
-            .label-page {
-                width: 30mm;
-                height: 20mm;
-                display: flex;
-                flex-direction: column;
-                page-break-after: always;
-                page-break-inside: avoid;
-                overflow: hidden;
-                box-sizing: border-box;
-                background-color: white;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
+            /* --- تم توسيع مساحة اللوجو لتصبح 8.5 ملم --- */
+            .logo-section { 
+                width: 8.5mm; 
+                height: 100%; display: flex; flex-direction: column; align-items: center; 
+                justify-content: center; border-left: 1.2px solid #000; box-sizing: border-box; 
+                padding-right: 0.1mm; padding-left: 0.4mm; overflow: hidden; 
             }
 
-            .single-sticker {
-                width: 30mm;
-                height: 10mm; 
-                display: flex;
-                flex-direction: row;
-                box-sizing: border-box;
-                overflow: hidden; 
-                padding: 0.5mm 0;
-            }
-
-            /* تم تكبير قسم اللوجو ليصبح 7mm بدلاً من 5.5mm */
-            .logo-section {
-                width: 7mm; 
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                border-left: 1.5px solid #000; 
-                box-sizing: border-box;
-                padding-right: 0.2mm; 
-                padding-left: 0.5mm;  
-                overflow: hidden;
-            }
-
-            /* تكبير صورة اللوجو */
-            .print-logo-img {
+            /* --- إعدادات اللوجو للوضوح الفائق --- */
+            .print-logo-img { 
                 width: 100%; 
-                height: auto;
-                max-height: 8.2mm; /* تم زيادته لإعطاء مساحة أكبر للوجو */
-                object-fit: contain;
-                display: block;
-                filter: grayscale(100%) contrast(1.5) brightness(0.9);
-                margin-bottom: 0.3mm; 
-                transform: scale(1.1); /* تكبير إضافي بنسبة 10% لملء الفراغ */
+                height: auto; 
+                max-height: 9.5mm; /* ارتفاع أكبر لملء المساحة */
+                object-fit: contain; display: block; 
+                /* فلاتر تباين الطابعات الحرارية */
+                filter: grayscale(100%) contrast(1.3) brightness(0.95); 
+                /* منع التشوش وجعل الحواف حادة */
+                image-rendering: -moz-crisp-edges; 
+                image-rendering: -o-crisp-edges; 
+                image-rendering: -webkit-optimize-contrast; 
+                image-rendering: crisp-edges; 
+                -ms-interpolation-mode: nearest-neighbor; 
+                margin-bottom: 0.2mm; 
             }
 
-            .branch-text {
-                font-size: 5.5pt; /* تكبير بسيط لاسم الفرع */
-                font-weight: 900;
-                color: #000;
-                line-height: 1;
-                text-align: center;
-                white-space: nowrap;
-                margin-top: 0;
-                width: 100%; 
-                overflow: hidden;
+            .branch-text { 
+                font-size: 4.8pt; font-weight: 900; color: #000; line-height: 1; 
+                text-align: center; white-space: nowrap; margin-top: 0; width: 100%; overflow: hidden; 
             }
 
-            /* تم تقليل عرض قسم الجرعة ليناسب الزيادة في قسم اللوجو (30 - 7 = 23) */
-            .dosage-section {
-                width: 23mm; 
-                height: 100%;
-                display: flex;
-                align-items: center; 
-                justify-content: center; 
-                box-sizing: border-box;
-                padding: 0 1mm; 
-                overflow: hidden; 
+            /* --- تم تقليل مساحة النص لتناسب توسيع اللوجو --- */
+            .dosage-section { 
+                width: 21.5mm; 
+                height: 100%; display: flex; align-items: center; justify-content: center; 
+                box-sizing: border-box; padding: 0 0.8mm; overflow: hidden; 
             }
-
-            .dose-text-fluid {
-                width: 100%;
-                font-size: 6.8pt; 
-                font-weight: 900;
-                color: #000;
-                line-height: 1.25; 
-                text-align: center;
-                white-space: normal; 
-                word-break: break-word; 
-                max-height: 100%;
-                overflow: hidden;
+            .dose-text-fluid { 
+                width: 100%; font-size: 6.8pt; font-weight: 900; color: #000; 
+                line-height: 1.25; text-align: center; white-space: normal; word-break: break-word; 
+                max-height: 100%; overflow: hidden; 
             }
         }
+        /* ========================================== */
         
-        .modal-hidden { display: none !important; }
+        .modal-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
         
-        .slide-down {
-            transition: all 0.3s ease-in-out;
-            max-height: 100px;
-            opacity: 1;
-            overflow: hidden;
+        .slide-down { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 100px; opacity: 1; overflow: hidden; transform: translateY(0); }
+        .slide-up { max-height: 0; opacity: 0; margin: 0 !important; padding: 0 !important; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(-10px); }
+        
+        /* Modern Solid Select (No visible borders until focus) */
+        select, input[type="text"], input[type="number"] {
+            background-color: #f1f5f9;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
         }
-        .slide-up {
-            max-height: 0;
-            opacity: 0;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden;
-            transition: all 0.3s ease-in-out;
+        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+            background-color: #ffffff;
+            border-color: #0f172a;
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05);
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 0.75rem center;
+            background-size: 1em;
+            padding-left: 2.5rem !important;
         }
     </style>
 </head>
-<body class="min-h-screen pb-10 relative">
+<body class="min-h-screen pb-12 relative selection:bg-slate-800 selection:text-white">
 
-    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-2xl transform transition-all duration-300 translate-y-20 opacity-0 z-50 flex items-center gap-3">
-        <span id="toast-icon" class="text-xl">✅</span>
-        <span id="toast-msg" class="font-bold text-sm">تم الحفظ</span>
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl transform transition-all duration-400 translate-y-24 opacity-0 z-50 flex items-center gap-3 border border-slate-700">
+        <div id="toast-icon" class="flex items-center justify-center w-5 h-5 rounded-full bg-white text-slate-900 text-xs font-black">✓</div>
+        <span id="toast-msg" class="font-bold text-sm">تم الإجراء بنجاح</span>
     </div>
 
-    <!-- نافذة الإعدادات -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm modal-hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg transform transition-all flex flex-col max-h-[90vh]">
-            <div class="p-5 border-b flex justify-between items-center bg-emerald-50 rounded-t-2xl">
-                <h3 class="text-xl font-bold text-emerald-900 flex items-center gap-2">🏢 إدارة الفروع</h3>
-                <button onclick="closeSettings()" class="text-emerald-700 hover:text-red-500 transition text-3xl leading-none">&times;</button>
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center backdrop-blur-sm transition-all duration-300 modal-hidden p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md transform transition-all flex flex-col max-h-[85vh] shadow-2xl scale-95 opacity-0 group-[.is-active]:scale-100 group-[.is-active]:opacity-100">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-black text-slate-900 tracking-tight">الفروع والإعدادات</h3>
+                <button onclick="closeSettings()" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
             
-            <div class="p-5 overflow-y-auto flex-grow space-y-6">
+            <div class="p-6 overflow-y-auto flex-grow space-y-8">
                 <div>
-                    <h4 class="font-bold text-gray-700 mb-3 text-sm">الفروع المسجلة (اختر الفرع النشط)</h4>
+                    <h4 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-3">الفروع المسجلة</h4>
                     <div id="branches-list" class="space-y-2">
-                        <div class="text-center text-gray-400 text-sm py-4">جاري التحميل...</div>
+                        <div class="text-center text-slate-400 text-sm py-4">جاري التحميل...</div>
                     </div>
                 </div>
 
-                <hr class="border-gray-200">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-100"></div></div>
+                    <div class="relative flex justify-center"><span class="bg-white px-4 text-xs uppercase tracking-widest font-bold text-slate-300">إضافة فرع</span></div>
+                </div>
 
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <h4 class="font-bold text-emerald-700 mb-3 text-sm flex items-center gap-1"><span>➕</span> إضافة فرع جديد</h4>
-                    <div class="space-y-3">
-                        <input type="text" id="new-branch-name" placeholder="اسم الفرع (مثال: الشفاء)" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <input type="text" id="new-branch-logo" placeholder="رابط اللوجو (اختياري)" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm text-left focus:ring-2 focus:ring-emerald-500 outline-none" dir="ltr">
-                        <button onclick="addNewBranch()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-lg hover:bg-emerald-700 transition shadow text-sm">
-                            حفظ وإضافة
-                        </button>
+                <div class="space-y-4">
+                    <div>
+                        <input type="text" id="new-branch-name" placeholder="اسم الفرع (مثال: الشفاء)" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 placeholder-slate-400 outline-none">
                     </div>
+                    <div>
+                        <input type="text" id="new-branch-logo" placeholder="رابط الشعار URL (اختياري)" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 placeholder-slate-400 outline-none" dir="ltr">
+                    </div>
+                    <button onclick="addNewBranch()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-colors text-sm mt-2">
+                        حفظ الفرع الجديد
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي -->
-    <div class="max-w-5xl mx-auto px-4 pt-8">
-        <header class="bg-gradient-to-r from-teal-700 to-emerald-600 text-white rounded-2xl p-6 shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div id="header-logo-container" class="bg-white p-2 rounded-xl h-14 w-14 flex items-center justify-center overflow-hidden">
-                    <span class="text-2xl"></span>
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+        
+        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 bg-white p-4 sm:p-6 rounded-3xl shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+            <div class="flex items-center gap-5 w-full md:w-auto">
+                <div id="header-logo-container" class="bg-slate-50 rounded-2xl h-16 w-16 flex items-center justify-center overflow-hidden shrink-0 border border-slate-100">
+                    <span class="text-2xl text-slate-300">🏢</span>
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold flex items-center gap-2">
-                        نظام طباعة الملصقات 
-                        <span id="active-branch-badge" class="bg-white/20 text-xs px-2 py-1 rounded text-emerald-50">بدون فرع</span>
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                        نظام الباركود
+                        <span id="active-branch-badge" class="bg-slate-900 text-white text-[10px] uppercase font-bold px-2.5 py-1 rounded-md tracking-widest hidden sm:inline-block">جاري التحميل</span>
                     </h1>
-                    <div class="flex items-center gap-2 text-emerald-100 text-sm mt-1">
-                        <span class="w-1.5 h-1.5 bg-emerald-300 rounded-full"></span>
-                        <span id="cloud-status">جاري الاتصال... ⏳</span>
+                    <div class="flex items-center gap-2 text-slate-500 text-xs mt-1.5 font-medium">
+                        <span id="cloud-indicator" class="w-2 h-2 rounded-full bg-slate-300"></span>
+                        <span id="cloud-status" class="tracking-wide">جاري الاتصال...</span>
                     </div>
                 </div>
             </div>
-            <div class="flex gap-3 flex-wrap">
-                <button onclick="openSettings()" class="bg-white/10 backdrop-blur text-white px-5 py-2 rounded-lg font-bold shadow-sm hover:bg-white/20 transition flex items-center gap-2 border border-white/20">
-                    ⚙️ الإعدادات
+            <div class="flex gap-3 w-full md:w-auto">
+                <button onclick="openSettings()" class="flex-1 md:flex-none bg-slate-50 text-slate-600 px-5 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 text-sm border border-slate-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    الإعدادات
                 </button>
-                <button onclick="window.print()" class="bg-white text-emerald-700 px-6 py-2 rounded-lg font-black shadow-sm hover:bg-emerald-50 transition flex items-center gap-2 border-2 border-white">
-                    <span>🖨️</span> طباعة القائمة
+                <button onclick="window.print()" class="flex-1 md:flex-none bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 text-sm shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    طباعة
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- الإدخال -->
-            <div class="lg:col-span-4">
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-8">
-                    <h2 class="font-bold text-gray-800 mb-5 flex items-center gap-2 text-lg">➕ تفاصيل الجرعة</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <div class="lg:col-span-4 sticky top-6">
+                <div class="bg-white rounded-3xl p-7 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-slate-100">
+                    <h2 class="font-black text-slate-900 text-lg mb-6">تفاصيل الجرعة</h2>
                     
                     <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">الكمية</label>
-                                <select id="input-qty" onchange="handleQtyChange()" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">الكمية</label>
+                                <select id="input-qty" onchange="handleQtyChange()" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
                                     <option value="" selected>بدون</option>
                                     <option value="دهان">دهان</option>
                                     <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
                                 </select>
                             </div>
-                            <div id="type-container">
-                                <label class="block text-xs font-bold text-gray-500 mb-1">الشكل الدوائي</label>
-                                <select id="input-type" onchange="handleTypeChange()" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <div id="type-container" class="transition-opacity duration-300">
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">الشكل الدوائي</label>
+                                <select id="input-type" onchange="handleTypeChange()" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
                                     <option value="" selected>بدون</option>
                                     <option value="قرص">قرص</option>
                                     <option value="نصف قرص">نصف قرص</option>
@@ -239,7 +219,7 @@
                                     <option value="لبوسة">لبوسة</option>
                                     <option value="حقنة">حقنة</option>
                                     <option value=" حقنة عضل">حقنة عضل</option>
-                                    <option value="امبول علي كوب لين ">امبول علي كوب لبن </option>
+                                    <option value="امبول علي كوب لبن ">امبول علي كوب لبن </option>
                                     <option value="نقطة">نقطة</option>
                                     <option value="بخة">بخة</option>
                                     <option value="لزقة علي اللسان">لزقة علي اللسان</option>
@@ -247,20 +227,19 @@
                             </div>
                         </div>
 
-                        <!-- حقل الطريقة الفرعية -->
                         <div id="usage-method-container" class="slide-up">
-                            <label class="block text-xs font-bold text-teal-600 mb-1">طريقة الاستخدام (تحديد)</label>
-                            <select id="input-usage-method" class="w-full border border-teal-200 rounded-lg p-2.5 bg-teal-50 font-bold focus:ring-2 focus:ring-teal-500 outline-none text-teal-900">
+                            <label class="block text-[11px] font-bold text-blue-500 mb-1.5">طريقة الاستخدام (مخصص)</label>
+                            <select id="input-usage-method" class="w-full rounded-xl p-3.5 font-bold text-blue-900 bg-blue-50/50 outline-none">
                             </select>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">التكرار</label>
-                                <select id="input-freq" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">التكرار</label>
+                                <select id="input-freq" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
                                     <option value="" selected>بدون</option>
+ع                                    <option value=" عند اللزوم"> عند اللزوم</option>
                                     <option value="مرة واحدة">مرة واحدة</option>
-زوم                                     <option value="عند اللزوم ">عند اللزوم</option>
                                     <option value="مرتين">مرتين</option>
                                     <option value="3 مرات">3 مرات</option>
                                     <option value="4 مرات">4 مرات</option>
@@ -268,30 +247,32 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-indigo-500 mb-1">التوقيت</label>
-                                <select id="input-timing" class="w-full border border-indigo-200 rounded-lg p-2.5 bg-indigo-50 font-bold focus:ring-2 focus:ring-indigo-500 outline-none text-indigo-900">
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">التوقيت</label>
+                                <select id="input-timing" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
                                     <option value="" selected>بدون</option>
                                     <option value="كل">كل</option>
                                     <option value="قبل الأكل">قبل الأكل</option>
                                     <option value="بعد الأكل">بعد الأكل</option>
                                     <option value="قبل النوم">قبل النوم</option>
                                     <option value="على الريق">على الريق</option>
-                                    <option value="قبل الفطار">قبل الفطار</option>
-                                    <option value="بعد الفطار">بعد الفطار</option>
+                                    <option value="قبل الفطار">قبل الفطار </option>
+طار                                  <option value="بعد الفطار">بعد الفطار</option>
+                                    <option value="قبل الغداء">قبل الغداء</option>
+                                    <option value="بعد الغداء">بعد الغداء</option>
                                     <option value="قبل العشاء">قبل العشاء</option>
                                     <option value="بعد العشاء">بعد العشاء</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">المدة (رقم)</label>
-                                <input type="number" id="input-dur-val" placeholder="مثال: 5" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none text-center">
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">المدة (رقم)</label>
+                                <input type="number" id="input-dur-val" placeholder="مثال: 5" class="w-full rounded-xl p-3.5 font-bold text-slate-800 text-center outline-none placeholder-slate-400">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-500 mb-1">الوحدة</label>
-                                <select id="input-dur-unit" class="w-full border border-gray-200 rounded-lg p-2.5 bg-gray-50 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                                <label class="block text-[11px] font-bold text-slate-400 mb-1.5">الوحدة</label>
+                                <select id="input-dur-unit" class="w-full rounded-xl p-3.5 font-bold text-slate-800 outline-none">
                                     <option value="ساعات">ساعات</option>
                                     <option value="يوم">يوم</option>
                                     <option value="أيام">أيام</option>
@@ -301,41 +282,43 @@
                             </div>
                         </div>
 
-                        <button onclick="addDosage()" class="w-full bg-emerald-600 text-white font-black text-lg py-3 rounded-xl hover:bg-emerald-700 transition shadow-md mt-4 flex justify-center items-center gap-2">
-                            <span>إضافة للملصقات</span> <span>+</span>
-                        </button>
+                        <div class="pt-4">
+                            <button onclick="addDosage()" class="w-full bg-slate-900 text-white font-bold text-base py-4 rounded-xl hover:bg-slate-800 transition-colors flex justify-center items-center gap-2 group shadow-md">
+                                <span>إضافة للملصقات</span> 
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- قائمة الملصقات -->
-            <div class="lg:col-span-8">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
-                    <div class="p-4 border-b bg-gray-50 flex justify-between items-center rounded-t-2xl">
-                        <div>
-                            <h2 class="font-bold text-gray-800">قائمة الملصقات</h2>
-                            <p class="text-xs text-emerald-600 mt-1 font-bold">✓ تم تفعيل ذكاء التوقيت والمدة، وتكبير الشعار في الطباعة.</p>
+            <div class="lg:col-span-8 flex flex-col h-full">
+                <div class="bg-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-slate-100 flex-grow flex flex-col overflow-hidden min-h-[500px]">
+                    
+                    <div class="px-7 py-6 border-b border-slate-100 flex justify-between items-center">
+                        <h2 class="font-black text-slate-900 text-lg">قائمة الطباعة</h2>
+                        <div class="bg-slate-100 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-2">
+                            <span>الإجمالي</span>
+                            <span id="label-count" class="bg-white px-2 py-0.5 rounded text-slate-900 shadow-sm">0</span>
                         </div>
-                        <span id="label-count" class="bg-emerald-100 text-emerald-800 text-sm font-black px-3 py-1 rounded-full">0</span>
                     </div>
                     
-                    <div id="labels-list" class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- البطاقات هنا -->
-                    </div>
+                    <div id="labels-list" class="p-7 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 content-start flex-grow bg-slate-50/50">
+                        </div>
 
-                    <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-gray-400 p-10">
-                        <span class="text-5xl mb-3 opacity-50">🖨️</span>
-                        <p class="font-bold text-lg">لا توجد جرعات للطباعة</p>
+                    <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-slate-400 p-10 bg-slate-50/50">
+                        <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-slate-100">
+                            <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <p class="font-bold text-slate-500">لا توجد جرعات مضافة</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- منطقة الطباعة المخفية -->
     <div id="print-area" class="hidden"></div>
 
-    <!-- Firebase Realtime Database SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -351,7 +334,7 @@
         };
 
         window.dosagesArray = [];
-        window.branches = JSON.parse(localStorage.getItem('pharmacy_branches')) || [{ id: '1', name: "صيدلية", logo: "" }];
+        window.branches = JSON.parse(localStorage.getItem('pharmacy_branches')) || [{ id: '1', name: "الفرع الرئيسي", logo: "" }];
         window.activeBranchId = localStorage.getItem('pharmacy_active_branch') || '1';
         
         let db;
@@ -371,8 +354,9 @@
                     localStorage.setItem('pharmacy_branches', JSON.stringify(window.branches));
                     localStorage.setItem('pharmacy_active_branch', window.activeBranchId);
                     
-                    document.getElementById('cloud-status').innerHTML = "متصل بقاعدة البيانات 🟢";
-                    document.getElementById('cloud-status').classList.replace('text-emerald-100', 'text-green-300');
+                    document.getElementById('cloud-status').innerText = "متصل وسحابي";
+                    document.getElementById('cloud-status').className = "tracking-wide text-green-600 font-bold text-[11px]";
+                    document.getElementById('cloud-indicator').className = "w-2 h-2 rounded-full bg-green-500";
                 } else {
                     saveDataToDB(); 
                 }
@@ -387,7 +371,9 @@
         }
 
         function useLocalFallback() {
-            document.getElementById('cloud-status').innerHTML = "يعمل بالذاكرة المحلية 🟠";
+            document.getElementById('cloud-status').innerText = "وضع محلي";
+            document.getElementById('cloud-status').className = "tracking-wide text-amber-600 font-bold text-[11px]";
+            document.getElementById('cloud-indicator').className = "w-2 h-2 rounded-full bg-amber-500";
             updateUIWithActiveBranch();
             renderBranchesList();
             window.renderLabels();
@@ -410,35 +396,38 @@
             const headerLogo = document.getElementById('header-logo-container');
             
             if (active) {
-                badge.innerText = `فرع: ${active.name}`;
-                badge.classList.replace('bg-white/20', 'bg-emerald-800');
+                badge.innerText = active.name;
+                badge.classList.remove('hidden');
                 if(active.logo) {
-                    headerLogo.innerHTML = `<img src="${active.logo}" class="w-full h-full object-contain" onerror="this.src=''; this.alt='💊'">`;
+                    headerLogo.innerHTML = `<img src="${active.logo}" class="w-full h-full object-contain p-1" onerror="this.src=''; this.alt='🏢'">`;
                 } else {
-                    headerLogo.innerHTML = `<span class="text-2xl font-bold text-emerald-600">${active.name.charAt(0)}</span>`;
+                    headerLogo.innerHTML = `<span class="text-xl font-black text-slate-400">${active.name.charAt(0)}</span>`;
                 }
+            } else {
+                badge.innerText = "بدون فرع";
             }
         }
 
         function renderBranchesList() {
             const list = document.getElementById('branches-list');
             if(window.branches.length === 0) {
-                list.innerHTML = `<div class="text-center text-gray-500 py-3 text-sm">لا توجد فروع مضافة.</div>`;
+                list.innerHTML = `<div class="text-center text-slate-400 py-3 text-sm font-bold">لا توجد فروع</div>`;
                 return;
             }
 
             list.innerHTML = window.branches.map(branch => {
                 const isActive = branch.id === window.activeBranchId;
                 return `
-                <div class="flex items-center justify-between p-3 border rounded-xl ${isActive ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 bg-white'}">
-                    <div class="flex items-center gap-3">
-                        <input type="radio" name="branch-select" ${isActive ? 'checked' : ''} onchange="setActiveBranch('${branch.id}')" class="w-4 h-4 text-emerald-600 cursor-pointer">
-                        <div class="w-8 h-8 rounded bg-white border flex items-center justify-center overflow-hidden shrink-0">
-                            ${branch.logo ? `<img src="${branch.logo}" class="w-full h-full object-contain">` : `<span class="text-xs text-gray-400">بدون</span>`}
+                <div class="flex items-center justify-between p-3 border rounded-2xl transition-colors ${isActive ? 'border-slate-900 bg-slate-50' : 'border-slate-100 bg-white hover:border-slate-200'}">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="setActiveBranch('${branch.id}')">
+                        <div class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                            ${branch.logo ? `<img src="${branch.logo}" class="w-full h-full object-contain p-1">` : `<span class="text-sm font-black text-slate-400">${branch.name.charAt(0)}</span>`}
                         </div>
-                        <span class="font-bold text-gray-800 text-sm">${branch.name}</span>
+                        <span class="font-black ${isActive ? 'text-slate-900' : 'text-slate-600'} text-sm">${branch.name}</span>
                     </div>
-                    <button onclick="deleteBranch('${branch.id}')" class="text-red-400 hover:text-red-600 p-1">🗑️</button>
+                    <button onclick="deleteBranch('${branch.id}')" class="text-slate-300 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
                 </div>
                 `;
             }).join('');
@@ -447,7 +436,7 @@
         window.addNewBranch = function() {
             const name = document.getElementById('new-branch-name').value.trim();
             const logo = document.getElementById('new-branch-logo').value.trim();
-            if(!name) { window.showToast("أدخل اسم الفرع", true); return; }
+            if(!name) { window.showToast("يرجى إدخال اسم الفرع", true); return; }
 
             const newBranch = { id: Date.now().toString(), name, logo };
             window.branches.push(newBranch);
@@ -460,7 +449,7 @@
             updateUIWithActiveBranch();
             renderBranchesList();
             window.renderLabels();
-            window.showToast("تم الحفظ بنجاح");
+            window.showToast("تم إضافة الفرع");
         };
 
         window.setActiveBranch = function(id) {
@@ -468,6 +457,7 @@
             saveDataToDB();
             updateUIWithActiveBranch();
             window.renderLabels();
+            renderBranchesList();
             window.showToast("تم تفعيل الفرع");
         };
 
@@ -482,16 +472,33 @@
             }
         };
 
-        window.openSettings = () => document.getElementById('settings-modal').classList.remove('modal-hidden');
-        window.closeSettings = () => document.getElementById('settings-modal').classList.add('modal-hidden');
+        window.openSettings = () => {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.remove('modal-hidden');
+            setTimeout(() => modal.firstElementChild.classList.add('group', 'is-active'), 10);
+        };
+        
+        window.closeSettings = () => {
+            const modal = document.getElementById('settings-modal');
+            modal.firstElementChild.classList.remove('is-active');
+            setTimeout(() => modal.classList.add('modal-hidden'), 300);
+        };
         
         window.showToast = function(message, isError = false) {
             const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
             document.getElementById('toast-msg').innerText = message;
-            document.getElementById('toast-icon').innerText = isError ? '❌' : '✅';
-            toast.classList.replace(isError ? 'bg-gray-800' : 'bg-emerald-600', isError ? 'bg-red-600' : 'bg-gray-800');
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+            
+            if (isError) {
+                icon.innerText = '✕';
+                icon.className = 'flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-black';
+            } else {
+                icon.innerText = '✓';
+                icon.className = 'flex items-center justify-center w-5 h-5 rounded-full bg-white text-slate-900 text-xs font-black';
+            }
+            
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 2500);
         };
 
         function convertToArabicNumerals(text) {
@@ -513,11 +520,11 @@
             const typeSelect = document.getElementById('input-type');
 
             if (qty === 'دهان') {
-                typeContainer.classList.add('hidden');
+                typeContainer.classList.add('opacity-30', 'pointer-events-none');
                 typeSelect.value = ''; 
                 handleTypeChange();    
             } else {
-                typeContainer.classList.remove('hidden');
+                typeContainer.classList.remove('opacity-30', 'pointer-events-none');
             }
         };
 
@@ -529,9 +536,9 @@
             if (type && usageOptionsData[type]) {
                 select.innerHTML = usageOptionsData[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
                 container.classList.remove('slide-up');
-                container.classList.add('slide-down', 'mt-3');
+                container.classList.add('slide-down', 'mt-4');
             } else {
-                container.classList.remove('slide-down', 'mt-3');
+                container.classList.remove('slide-down', 'mt-4');
                 container.classList.add('slide-up');
                 select.innerHTML = '';
             }
@@ -539,8 +546,8 @@
 
         window.addDosage = function() {
             const qty = document.getElementById('input-qty').value;
-            const typeContainerHidden = document.getElementById('type-container').classList.contains('hidden');
-            const type = typeContainerHidden ? "" : document.getElementById('input-type').value;
+            const typeContainerDisabled = document.getElementById('type-container').classList.contains('pointer-events-none');
+            const type = typeContainerDisabled ? "" : document.getElementById('input-type').value;
             
             const freq = document.getElementById('input-freq').value;
             const timing = document.getElementById('input-timing').value;
@@ -555,7 +562,6 @@
                 methodStr = methodSelect.value;
             }
 
-            // بناء السطر الأول
             let line1Parts = [];
             if (qty) line1Parts.push(qty);
             if (type) line1Parts.push(type);
@@ -564,18 +570,14 @@
             
             let rawLine1 = line1Parts.join(" ");
 
-            // بناء السطر الثاني (بالقاعدة الذكية الجديدة)
             let line2Parts = [];
-            
             if (timing === 'كل') {
-                // إذا كان التوقيت "كل"، نضيفه مباشرة مع المدة بدون كلمة "لمدة"
                 if (durVal) {
                     line2Parts.push(`كل ${durVal} ${durUnit}`);
                 } else {
                     line2Parts.push(`كل`);
                 }
             } else {
-                // أي توقيت آخر، نضع التوقيت ثم "لمدة كذا"
                 if (timing) line2Parts.push(timing);
                 if (durVal) line2Parts.push(`لمدة ${durVal} ${durUnit}`);
             }
@@ -583,7 +585,7 @@
             let rawLine2 = line2Parts.join(" ");
 
             if (!rawLine1 && !rawLine2) { 
-                window.showToast("عفواً، لا يمكن طباعة ملصق فارغ تماماً", true); 
+                window.showToast("لا يمكن إضافة جرعة فارغة", true); 
                 return; 
             }
 
@@ -592,7 +594,6 @@
 
             window.dosagesArray.push({ id: Date.now(), line1, line2 });
             
-            // تصفير الخانات لتسريع الإدخال المتتالي
             document.getElementById('input-qty').value = '';
             document.getElementById('input-type').value = '';
             document.getElementById('input-freq').value = '';
@@ -624,29 +625,31 @@
 
             const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
 
-            // رسم المعاينة في الواجهة
-            window.dosagesArray.forEach((item, index) => {
+            // شكل البطاقة يحاكي الملصق الحقيقي (Sticker Mockup)
+            window.dosagesArray.forEach((item) => {
                 let combinedText = "";
                 if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
                 else if (item.line1) combinedText = item.line1;
                 else if (item.line2) combinedText = item.line2;
 
                 const card = document.createElement('div');
-                card.className = "bg-white border-2 border-emerald-200 rounded-lg shadow-sm relative group overflow-hidden h-16 flex";
+                card.className = "bg-white border border-slate-200 rounded-xl relative group overflow-hidden flex h-20 shadow-sm hover:shadow-md transition-all";
                 card.innerHTML = `
-                    <button onclick="removeDosage(${item.id})" class="absolute top-1 left-1 bg-red-100 text-red-500 rounded-full w-6 h-6 flex items-center justify-center font-bold z-10 opacity-0 group-hover:opacity-100 transition">✕</button>
-                    <div class="w-[20%] border-l border-gray-300 flex flex-col items-center justify-center p-1 bg-gray-50">
-                        ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="max-h-6 object-contain mb-1">` : ''}
-                        <span class="text-[8px] font-black leading-none text-center">${activeBranch.name}</span>
+                    <button onclick="removeDosage(${item.id})" class="absolute top-2 left-2 bg-slate-100 hover:bg-red-500 hover:text-white text-slate-400 rounded-lg w-7 h-7 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <div class="w-[30%] border-l border-slate-100 flex flex-col items-center justify-center p-2 bg-slate-50">
+                        ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="h-8 object-contain mb-1 mix-blend-multiply">` : ''}
+                        <span class="text-[10px] font-black text-slate-800 text-center truncate w-full">${activeBranch.name}</span>
                     </div>
-                    <div class="w-[80%] flex items-center justify-center p-2 bg-white text-center">
-                        <span class="text-sm font-black text-black leading-tight">${combinedText}</span>
+                    <div class="w-[70%] flex items-center justify-center p-3 text-center">
+                        <span class="text-sm font-black text-slate-900 leading-tight">${combinedText}</span>
                     </div>
                 `;
                 list.appendChild(card);
             });
 
-            // كود الطباعة 
+            // كود الطباعة المحسن
             const combinedSideHtml = `
                 ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
                 <div class="branch-text">${activeBranch.name}</div>
@@ -692,7 +695,6 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             handleQtyChange();
-            // إضافة خيار الساعات كوحدة وقت بناءً على طبيعة الخيار "كل"
             const unitSelect = document.getElementById('input-dur-unit');
             let hasHours = false;
             for(let i=0; i<unitSelect.options.length; i++){
@@ -709,5 +711,6 @@
     </script>
 </body>
 </html>
+
 
 
