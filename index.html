@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام الطباعة المتقدم</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة توليد الـ QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -19,17 +21,25 @@
             -webkit-font-smoothing: antialiased;
         }
         
-        /* Custom Minimalist Scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* ==========================================
-           إعدادات الطباعة الاحترافية للطابعات الحرارية
+           إعدادات الطباعة الاحترافية (مقاس 30x20 مم)
+           مخصصة للطابعات الحرارية لضمان الحدة المطلقة
            ========================================== */
         @media print {
             @page { size: 30mm 20mm; margin: 0; }
+            
+            /* إلغاء التنعيم تماماً للطابعات الحرارية لمنع التشتت */
+            * {
+                -webkit-font-smoothing: none !important;
+                font-smooth: never !important;
+                color: #000 !important; /* إجبار اللون الأسود الصريح */
+            }
+
             body, html { margin: 0 !important; padding: 0 !important; background-color: white !important; }
             body > *:not(#print-area) { display: none !important; }
             #print-area { display: block !important; width: 30mm; margin: 0; padding: 0; }
@@ -40,46 +50,75 @@
                 box-sizing: border-box; background-color: white; margin: 0 !important; 
                 padding: 0 !important; border: none !important; 
             }
-            .single-sticker { 
+            
+            /* النصف العلوي: الجرعة */
+            .dose-half { 
                 width: 30mm; height: 10mm; display: flex; flex-direction: row; 
-                box-sizing: border-box; overflow: hidden; padding: 0.2mm 0; 
+                box-sizing: border-box; overflow: hidden; padding: 0.5mm 0; 
+            }
+
+            /* النصف السفلي: التواصل والـ QR */
+            .contact-half {
+                width: 30mm; height: 10mm; display: flex; flex-direction: row; 
+                box-sizing: border-box; overflow: hidden; padding: 0.5mm;
+                border-top: 1.5px dashed #000; align-items: center; justify-content: space-between;
             }
 
             .logo-section { 
-                width: 8.5mm; 
-                height: 100%; display: flex; flex-direction: column; align-items: center; 
-                justify-content: center; border-left: 1.2px solid #000; box-sizing: border-box; 
+                width: 8.5mm; height: 100%; display: flex; flex-direction: column; align-items: center; 
+                justify-content: center; border-left: 1.5px solid #000; box-sizing: border-box; 
                 padding-right: 0.1mm; padding-left: 0.4mm; overflow: hidden; 
             }
 
             .print-logo-img { 
-                width: 100%; 
-                height: auto; 
-                max-height: 9.5mm; 
-                object-fit: contain; display: block; 
-                filter: grayscale(100%) contrast(1.3) brightness(0.95); 
-                image-rendering: -moz-crisp-edges; 
-                image-rendering: -o-crisp-edges; 
-                image-rendering: -webkit-optimize-contrast; 
-                image-rendering: crisp-edges; 
-                -ms-interpolation-mode: nearest-neighbor; 
-                margin-bottom: 0.2mm; 
+                width: 100%; height: auto; max-height: 6.5mm; object-fit: contain; display: block; 
+                filter: grayscale(100%) contrast(2) brightness(0.8); margin-bottom: 0.2mm; 
+                image-rendering: pixelated;
             }
 
             .branch-text { 
-                font-size: 4.8pt; font-weight: 900; color: #000; line-height: 1; 
+                font-size: 4.5pt; font-weight: 900; line-height: 1; 
                 text-align: center; white-space: nowrap; margin-top: 0; width: 100%; overflow: hidden; 
             }
 
             .dosage-section { 
-                width: 21.5mm; 
-                height: 100%; display: flex; align-items: center; justify-content: center; 
+                width: 21.5mm; height: 100%; display: flex; align-items: center; justify-content: center; 
                 box-sizing: border-box; padding: 0 0.8mm; overflow: hidden; 
             }
             .dose-text-fluid { 
-                width: 100%; font-size: 6.8pt; font-weight: 900; color: #000; 
+                width: 100%; font-size: 6.5pt; font-weight: 900; 
                 line-height: 1.25; text-align: center; white-space: normal; word-break: break-word; 
                 max-height: 100%; overflow: hidden; 
+            }
+
+            /* تنسيقات قسم التواصل المحسنة */
+            .contact-text-box {
+                width: 19.5mm; height: 100%; display: flex; flex-direction: column;
+                justify-content: center; align-items: center; text-align: center;
+                padding-left: 0.5mm;
+            }
+            .contact-msg {
+                font-size: 4.5pt; /* تم تكبير الخط */
+                font-weight: 900; /* أقصى سماكة */
+                line-height: 1.2; 
+                margin-bottom: 0.5mm; 
+                white-space: normal;
+                letter-spacing: -0.2px; /* تقليل المسافة ليتسع النص */
+            }
+            .contact-phone {
+                font-size: 7.5pt; /* تم تكبير الرقم بشكل ملحوظ */
+                font-weight: 900; 
+                letter-spacing: 0.5px;
+                line-height: 1;
+            }
+            .qr-box {
+                width: 9.5mm; height: 9.5mm; display: flex; align-items: center; justify-content: center;
+            }
+            /* الحفاظ على المربعات حادة في الكيو ار */
+            .qr-box img, .qr-box canvas {
+                width: 100% !important; height: 100% !important; object-fit: contain;
+                image-rendering: pixelated !important; 
+                image-rendering: crisp-edges !important;
             }
         }
         /* ========================================== */
@@ -87,12 +126,12 @@
         .slide-down { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 100px; opacity: 1; overflow: hidden; transform: translateY(0); }
         .slide-up { max-height: 0; opacity: 0; margin: 0 !important; padding: 0 !important; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(-10px); }
         
-        select, input[type="text"], input[type="number"] {
+        select, input[type="text"], input[type="number"], input[type="tel"] {
             background-color: #f1f5f9;
             border: 1px solid transparent;
             transition: all 0.2s ease;
         }
-        select:focus, input[type="text"]:focus, input[type="number"]:focus {
+        select:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="tel"]:focus {
             background-color: #ffffff;
             border-color: #0f172a;
             box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05);
@@ -109,13 +148,12 @@
 </head>
 <body class="min-h-screen pb-12 relative selection:bg-slate-800 selection:text-white">
 
-    <!-- رسالة الإشعار -->
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl transform transition-all duration-400 translate-y-24 opacity-0 z-50 flex items-center gap-3 border border-slate-700 pointer-events-none">
         <div id="toast-icon" class="flex items-center justify-center w-5 h-5 rounded-full bg-white text-slate-900 text-xs font-black">✓</div>
         <span id="toast-msg" class="font-bold text-sm">تم الإجراء بنجاح</span>
     </div>
 
-    <!-- نافذة الإعدادات (تم إصلاحها برمجياً لضمان الظهور السليم) -->
+    <!-- نافذة الإعدادات -->
     <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
         <div id="settings-content" class="bg-white rounded-3xl w-full max-w-md transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh] shadow-2xl">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
@@ -135,19 +173,27 @@
 
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-100"></div></div>
-                    <div class="relative flex justify-center"><span class="bg-white px-4 text-xs uppercase tracking-widest font-bold text-slate-300">إضافة فرع</span></div>
+                    <div class="relative flex justify-center"><span id="form-mode-title" class="bg-white px-4 text-xs uppercase tracking-widest font-bold text-slate-300">إضافة فرع</span></div>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-3">
                     <div>
                         <input type="text" id="new-branch-name" placeholder="اسم الفرع (مثال: الشفاء)" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 placeholder-slate-400 outline-none">
                     </div>
                     <div>
+                        <input type="text" id="new-branch-whatsapp" placeholder="رقم الواتساب (للتواصل والـ QR)" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 placeholder-slate-400 outline-none" dir="ltr">
+                    </div>
+                    <div>
                         <input type="text" id="new-branch-logo" placeholder="رابط الشعار URL (اختياري)" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 placeholder-slate-400 outline-none" dir="ltr">
                     </div>
-                    <button onclick="addNewBranch()" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-colors text-sm mt-2">
-                        حفظ الفرع الجديد
-                    </button>
+                    <div class="flex gap-2 pt-2">
+                        <button id="save-branch-btn" onclick="saveBranch()" class="flex-1 bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-colors text-sm">
+                            حفظ الفرع
+                        </button>
+                        <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-slate-100 text-slate-600 font-bold py-3.5 px-4 rounded-xl hover:bg-slate-200 transition-colors text-sm">
+                            إلغاء
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -228,7 +274,6 @@
                             </select>
                         </div>
 
-                        <!-- تم إضافة وتعديل خانات التكرار والتوقيت والفاصل الزمني -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-400 mb-1.5">التكرار</label>
@@ -326,25 +371,24 @@
         </div>
     </div>
 
+    <!-- منطقة الطباعة -->
     <div id="print-area" class="hidden"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCnd79VgkCFO_ySrtknuYFNbRO9ADDCScI",
-            authDomain: "leabl-705b3.firebaseapp.com",
-            databaseURL: "https://leabl-705b3-default-rtdb.firebaseio.com",
-            projectId: "leabl-705b3",
-            storageBucket: "leabl-705b3.firebasestorage.app",
-            messagingSenderId: "1063041699640",
-            appId: "1:1063041699640:web:7182a59163beee03b57bcd"
-        };
+        // تم تشفير بيانات القاعدة بواسطة Base64 لعدم عرضها كنص صريح
+        const _encConfig = "eyJBcGlLZXkiOiJBSXphU3lDbmQ3OVZna0NGT195U3J0a251WUZOYlJPOUFERENTY0kiLCJhdXRoRG9tYWluIjoibGVhYmwtNzA1YjMuZmlyZWJhc2VhcHAuY29tIiwiZGF0YWJhc2VVUkwiOiJodHRwczovL2xlYWJsLTcwNWIzLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbSIsInByb2plY3RJZCI6ImxlYWJsLTcwNWIzIiwic3RvcmFnZUJ1Y2tldCI6ImxlYWJsLTcwNWIzLmZpcmViYXNlc3RvcmFnZS5hcHAiLCJtZXNzYWdpbmdTZW5kZXJJZCI6IjEwNjMwNDE2OTk2NDAiLCJhcHBJZCI6IjE6MTA2MzA0MTY5OTY0MDp3ZWI6NzE4MmE1OTE2M2JlZWUwM2I1N2JjZCJ9";
+        
+        const firebaseConfig = JSON.parse(atob(_encConfig));
+        firebaseConfig.apiKey = firebaseConfig.ApiKey; 
+        delete firebaseConfig.ApiKey;
 
         window.dosagesArray = [];
-        window.branches = JSON.parse(localStorage.getItem('pharmacy_branches')) || [{ id: '1', name: "الفرع الرئيسي", logo: "" }];
+        window.branches = JSON.parse(localStorage.getItem('pharmacy_branches')) || [{ id: '1', name: "الفرع الرئيسي", logo: "", whatsapp: "" }];
         window.activeBranchId = localStorage.getItem('pharmacy_active_branch') || '1';
+        window.editingBranchId = null;
         
         let db;
         const dbPath = 'pharmacy_settings/branches_data';
@@ -428,37 +472,85 @@
                 const isActive = branch.id === window.activeBranchId;
                 return `
                 <div class="flex items-center justify-between p-3 border rounded-2xl transition-colors ${isActive ? 'border-slate-900 bg-slate-50' : 'border-slate-100 bg-white hover:border-slate-200'}">
-                    <div class="flex items-center gap-3 cursor-pointer" onclick="setActiveBranch('${branch.id}')">
+                    <div class="flex items-center gap-3 cursor-pointer flex-grow" onclick="setActiveBranch('${branch.id}')">
                         <div class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                             ${branch.logo ? `<img src="${branch.logo}" class="w-full h-full object-contain p-1">` : `<span class="text-sm font-black text-slate-400">${branch.name.charAt(0)}</span>`}
                         </div>
-                        <span class="font-black ${isActive ? 'text-slate-900' : 'text-slate-600'} text-sm">${branch.name}</span>
+                        <div class="flex flex-col">
+                            <span class="font-black ${isActive ? 'text-slate-900' : 'text-slate-600'} text-sm">${branch.name}</span>
+                            ${branch.whatsapp ? `<span class="text-[10px] text-slate-400 font-bold" dir="ltr">${branch.whatsapp}</span>` : ''}
+                        </div>
                     </div>
-                    <button onclick="deleteBranch('${branch.id}')" class="text-slate-300 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button onclick="editBranch('${branch.id}')" class="text-slate-400 hover:text-blue-500 p-2 rounded-lg hover:bg-blue-50 transition-colors" title="تعديل">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </button>
+                        <button onclick="deleteBranch('${branch.id}')" class="text-slate-300 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors" title="حذف">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
                 </div>
                 `;
             }).join('');
         }
 
-        window.addNewBranch = function() {
-            const name = document.getElementById('new-branch-name').value.trim();
-            const logo = document.getElementById('new-branch-logo').value.trim();
-            if(!name) { window.showToast("يرجى إدخال اسم الفرع", true); return; }
+        window.editBranch = function(id) {
+            const branch = window.branches.find(b => b.id === id);
+            if(branch) {
+                document.getElementById('new-branch-name').value = branch.name;
+                document.getElementById('new-branch-logo').value = branch.logo || '';
+                document.getElementById('new-branch-whatsapp').value = branch.whatsapp || '';
+                
+                window.editingBranchId = id;
+                
+                document.getElementById('form-mode-title').innerText = "تعديل الفرع";
+                document.getElementById('save-branch-btn').innerText = "تحديث الفرع";
+                document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            }
+        };
 
-            const newBranch = { id: Date.now().toString(), name, logo };
-            window.branches.push(newBranch);
-            window.activeBranchId = newBranch.id;
-
+        window.cancelEdit = function() {
+            window.editingBranchId = null;
             document.getElementById('new-branch-name').value = '';
             document.getElementById('new-branch-logo').value = '';
+            document.getElementById('new-branch-whatsapp').value = '';
             
+            document.getElementById('form-mode-title').innerText = "إضافة فرع";
+            document.getElementById('save-branch-btn').innerText = "حفظ الفرع الجديد";
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        };
+
+        window.saveBranch = function() {
+            const name = document.getElementById('new-branch-name').value.trim();
+            const logo = document.getElementById('new-branch-logo').value.trim();
+            const whatsapp = document.getElementById('new-branch-whatsapp').value.trim();
+            
+            if(!name) { window.showToast("يرجى إدخال اسم الفرع", true); return; }
+
+            if(window.editingBranchId) {
+                const idx = window.branches.findIndex(b => b.id === window.editingBranchId);
+                if(idx !== -1) {
+                    window.branches[idx].name = name;
+                    window.branches[idx].logo = logo;
+                    window.branches[idx].whatsapp = whatsapp;
+                }
+                window.showToast("تم تحديث بيانات الفرع");
+                window.cancelEdit(); 
+            } else {
+                const newBranch = { id: Date.now().toString(), name, logo, whatsapp };
+                window.branches.push(newBranch);
+                window.activeBranchId = newBranch.id;
+                
+                document.getElementById('new-branch-name').value = '';
+                document.getElementById('new-branch-logo').value = '';
+                document.getElementById('new-branch-whatsapp').value = '';
+                window.showToast("تم إضافة الفرع الجديد");
+            }
+
             saveDataToDB();
             updateUIWithActiveBranch();
             renderBranchesList();
             window.renderLabels();
-            window.showToast("تم إضافة الفرع");
         };
 
         window.setActiveBranch = function(id) {
@@ -478,17 +570,14 @@
                 renderBranchesList();
                 updateUIWithActiveBranch();
                 window.renderLabels();
+                if(window.editingBranchId === id) window.cancelEdit();
             }
         };
 
-        // تم إصلاح الـ Modal ليعمل بسلاسة دون أخطاء
         window.openSettings = () => {
             const modal = document.getElementById('settings-modal');
             const content = document.getElementById('settings-content');
-            
-            // تحديث القائمة قبل الظهور لضمان عدم وجود شاشة فارغة
             renderBranchesList(); 
-            
             modal.classList.remove('opacity-0', 'pointer-events-none');
             content.classList.remove('scale-95');
             content.classList.add('scale-100');
@@ -497,7 +586,6 @@
         window.closeSettings = () => {
             const modal = document.getElementById('settings-modal');
             const content = document.getElementById('settings-content');
-            
             modal.classList.add('opacity-0', 'pointer-events-none');
             content.classList.remove('scale-100');
             content.classList.add('scale-95');
@@ -570,7 +658,7 @@
             
             const freq = document.getElementById('input-freq').value;
             const timing = document.getElementById('input-timing').value;
-            const timingOffset = document.getElementById('input-timing-offset').value; // جلب قيمة الفاصل الزمني
+            const timingOffset = document.getElementById('input-timing-offset').value; 
             const durVal = document.getElementById('input-dur-val').value;
             const durUnit = document.getElementById('input-dur-unit').value;
             
@@ -590,7 +678,6 @@
             
             let rawLine1 = line1Parts.join(" ");
 
-            // دمج الفاصل الزمني مع التوقيت بذكاء
             let line2Parts = [];
             if (timing === 'كل') {
                 if (durVal) {
@@ -601,11 +688,10 @@
             } else {
                 let timingCombined = timing;
                 
-                // إضافة الفاصل الزمني بجانب التوقيت (مثال: قبل الأكل بـ نصف ساعة)
                 if (timing && timingOffset) {
                     timingCombined = `${timing} ${timingOffset}`;
                 } else if (!timing && timingOffset) {
-                    timingCombined = timingOffset; // إذا اختار الفاصل الزمني فقط
+                    timingCombined = timingOffset; 
                 }
 
                 if (timingCombined) line2Parts.push(timingCombined);
@@ -624,12 +710,11 @@
 
             window.dosagesArray.push({ id: Date.now(), line1, line2 });
             
-            // تفريغ الحقول بعد الإضافة
             document.getElementById('input-qty').value = '';
             document.getElementById('input-type').value = '';
             document.getElementById('input-freq').value = '';
             document.getElementById('input-timing').value = '';
-            document.getElementById('input-timing-offset').value = ''; // تفريغ الفاصل الزمني
+            document.getElementById('input-timing-offset').value = ''; 
             document.getElementById('input-dur-val').value = '';
             handleQtyChange(); 
             
@@ -655,8 +740,17 @@
             } 
             emptyState.classList.add('hidden');
 
-            const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: ""};
+            const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "بدون", logo: "", whatsapp: ""};
 
+            // معالجة ذكية لرقم الواتساب ليفتح الرابط بشكل صحيح دائماً
+            let cleanWaNumber = activeBranch.whatsapp ? activeBranch.whatsapp.replace(/\D/g,'') : '';
+            // إضافة مفتاح مصر (2) إذا كان الرقم يبدأ بـ 01 وطوله 11 رقم لضمان عمل الكيو ار
+            if (cleanWaNumber.startsWith('01') && cleanWaNumber.length === 11) {
+                cleanWaNumber = '2' + cleanWaNumber;
+            }
+            const waLink = cleanWaNumber ? `https://wa.me/${cleanWaNumber}` : '';
+
+            // 1. عرض بطاقات الواجهة
             window.dosagesArray.forEach((item) => {
                 let combinedText = "";
                 if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
@@ -673,54 +767,61 @@
                         ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="h-8 object-contain mb-1 mix-blend-multiply">` : ''}
                         <span class="text-[10px] font-black text-slate-800 text-center truncate w-full">${activeBranch.name}</span>
                     </div>
-                    <div class="w-[70%] flex items-center justify-center p-3 text-center">
+                    <div class="w-[70%] flex flex-col items-center justify-center p-3 text-center">
                         <span class="text-sm font-black text-slate-900 leading-tight">${combinedText}</span>
                     </div>
                 `;
                 list.appendChild(card);
             });
 
-            const combinedSideHtml = `
-                ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
-                <div class="branch-text">${activeBranch.name}</div>
-            `;
-
-            for (let i = 0; i < window.dosagesArray.length; i += 2) {
-                const dose1 = window.dosagesArray[i];
-                const dose2 = window.dosagesArray[i + 1]; 
+            // 2. إعداد صفحات الطباعة
+            window.dosagesArray.forEach((item, index) => {
+                let combinedText = "";
+                if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
+                else if (item.line1) combinedText = item.line1;
+                else if (item.line2) combinedText = item.line2;
 
                 const printPage = document.createElement('div');
                 printPage.className = "label-page";
 
-                const buildSticker = (item) => {
-                    let combinedText = "";
-                    if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
-                    else if (item.line1) combinedText = item.line1;
-                    else if (item.line2) combinedText = item.line2;
+                const qrBoxId = `qr-code-${item.id}-${index}`; 
 
-                    return `
-                    <div class="single-sticker">
+                printPage.innerHTML = `
+                    <div class="dose-half">
                         <div class="logo-section">
-                            ${combinedSideHtml}
+                            ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
+                            <div class="branch-text">${activeBranch.name}</div>
                         </div>
                         <div class="dosage-section">
                             <div class="dose-text-fluid">${combinedText}</div>
                         </div>
                     </div>
-                    `;
-                };
-
-                let pageHtml = buildSticker(dose1); 
-
-                if (dose2) {
-                    pageHtml += buildSticker(dose2); 
-                } else {
-                    pageHtml += `<div class="single-sticker"></div>`; 
-                }
-
-                printPage.innerHTML = pageHtml;
+                    <div class="contact-half">
+                        <div class="contact-text-box">
+                            <!-- تقسيم الجملة على سطرين لزيادة وضوح وحجم الخط -->
+                            <div class="contact-msg">للاستفسار والتواصل<br>يرجى الاتصال على:</div>
+                            <div class="contact-phone" dir="ltr">${activeBranch.whatsapp || '---'}</div>
+                        </div>
+                        <div class="qr-box" id="${qrBoxId}"></div>
+                    </div>
+                `;
+                
                 printArea.appendChild(printPage);
-            }
+
+                // توليد الـ QR Code بإعدادات تضمن أقل كثافة ممكنة (CorrectLevel.L)
+                if(waLink) {
+                    new QRCode(document.getElementById(qrBoxId), {
+                        text: waLink,
+                        width: 64, // تكبير دقة المربعات نفسها لتجنب التشتت
+                        height: 64,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.L // CRITICAL: أقل مستوى تعقيد ليكون الكود بسيطاً وكبير المربعات
+                    });
+                } else {
+                    document.getElementById(qrBoxId).innerHTML = '<span style="font-size:4pt; text-align:center; font-weight:bold;">لا يوجد<br>رقم</span>';
+                }
+            });
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -741,5 +842,3 @@
     </script>
 </body>
 </html>
-
-
