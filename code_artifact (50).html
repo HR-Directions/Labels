@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الطباعة الحرارية الاحترافي - طابعة الباركود</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة توليد الـ QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --primary: #0f172a;
+            --accent: #2563eb;
+        }
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background: #f1f5f9;
+            color: #0f172a; 
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ==========================================
+           إعدادات الطباعة الحرارية المتقدمة (30x20 مم)
+           الجرعة بخط كبير جداً + الباركود للجرعة فقط
+           ========================================== */
+        @media print {
+            @page { 
+                size: 30mm 20mm; 
+                margin: 0; 
+            }
+            
+            * {
+                -webkit-font-smoothing: none !important;
+                font-smooth: never !important;
+                color: #000 !important;
+                box-sizing: border-box !important;
+            }
+
+            body, html { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                background-color: #fff !important; 
+                width: 30mm !important;
+                height: 20mm !important;
+            }
+
+            body > *:not(#print-area) { 
+                display: none !important; 
+            }
+
+            #print-area { 
+                display: block !important; 
+                width: 30mm !important; 
+                height: 20mm !important;
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+            
+            /* كارت الملصق الكامل 30×20 مم */
+            .label-page { 
+                width: 30mm; 
+                height: 20mm; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-between;
+                page-break-after: always; 
+                page-break-inside: avoid; 
+                overflow: hidden; 
+                background-color: #fff; 
+                margin: 0 !important; 
+                padding: 0.4mm 0.6mm !important; 
+            }
+            
+            /* القسم العلوي الرئيسي: نص الجرعة بخط كبير ومقروء جداً (ارتفاع 11.5 مم) */
+            .dose-top-section { 
+                width: 100%; 
+                height: 11.5mm; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                text-align: center;
+                overflow: hidden; 
+                border-bottom: 1.2px solid #000;
+                padding-bottom: 0.2mm;
+            }
+            
+            .dose-text-fluid { 
+                width: 100%; 
+                font-size: 8.5pt; 
+                font-weight: 900; 
+                line-height: 1.15; 
+                text-align: center; 
+                white-space: normal; 
+                word-break: break-word; 
+                max-height: 100%; 
+                overflow: hidden; 
+                letter-spacing: -0.1px;
+            }
+
+            /* القسم السفلي: الشعار ورقم الهاتف ومعلومات الفرع والـ QR الخاص بالجرعة (ارتفاع 7.5 مم) */
+            .info-bottom-section {
+                width: 100%; 
+                height: 7.5mm; 
+                display: flex; 
+                flex-direction: row; 
+                align-items: center; 
+                justify-content: space-between;
+                overflow: hidden; 
+            }
+
+            /* الجانب الأيمن: الشعار اسم الفرع ورقم التواصل */
+            .brand-details-box {
+                flex: 1;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+                padding-right: 0.2mm;
+                overflow: hidden;
+            }
+
+            .brand-header-row {
+                display: flex;
+                align-items: center;
+                gap: 0.3mm;
+                max-width: 100%;
+            }
+
+            .print-logo-img { 
+                height: 3.2mm; 
+                max-width: 5mm;
+                object-fit: contain; 
+                display: block; 
+                filter: grayscale(100%) contrast(200%) brightness(0); 
+                image-rendering: pixelated;
+            }
+
+            .branch-text { 
+                font-size: 4.8pt; 
+                font-weight: 900; 
+                line-height: 1; 
+                white-space: nowrap; 
+                overflow: hidden; 
+                text-overflow: ellipsis;
+            }
+
+            .contact-phone {
+                font-size: 5.8pt; 
+                font-weight: 900; 
+                line-height: 1.1;
+                margin-top: 0.3mm;
+                letter-spacing: 0.2px;
+            }
+
+            /* مربع الباركود الذي يضم الجرعة فقط */
+            .qr-box {
+                width: 7.2mm; 
+                height: 7.2mm; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                shrink: 0;
+                background-color: #fff;
+            }
+
+            .qr-box img, .qr-box canvas {
+                width: 100% !important; 
+                height: 100% !important; 
+                object-fit: contain;
+                image-rendering: pixelated !important; 
+                image-rendering: crisp-edges !important;
+            }
+        }
+        /* ========================================== */
+        
+        .slide-down { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); max-height: 100px; opacity: 1; overflow: hidden; transform: translateY(0); }
+        .slide-up { max-height: 0; opacity: 0; margin: 0 !important; padding: 0 !important; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(-10px); }
+        
+        .custom-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        select, input[type="text"], input[type="number"], input[type="tel"] {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        select:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="tel"]:focus {
+            background-color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 0.85rem center;
+            background-size: 1.1em;
+            padding-left: 2.75rem !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12 relative selection:bg-blue-600 selection:text-white bg-slate-100/70">
+
+    <!-- التنبيهات الاحترافية (Toast) -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/95 text-white px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md transform transition-all duration-400 translate-y-24 opacity-0 z-50 flex items-center gap-3 border border-slate-700/50 pointer-events-none">
+        <div id="toast-icon" class="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-black">✓</div>
+        <span id="toast-msg" class="font-bold text-sm tracking-wide">تم الإجراء بنجاح</span>
+    </div>
+
+    <!-- نافذة الإعدادات العصرية -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 p-4">
+        <div id="settings-content" class="bg-white/95 backdrop-blur-xl rounded-3xl w-full max-w-md transform scale-95 transition-all duration-300 flex flex-col max-h-[85vh] shadow-2xl border border-slate-100">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-3xl">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 tracking-tight">إدارة الفروع والإعدادات</h3>
+                    <p class="text-xs text-slate-500 font-medium mt-0.5">خصص الفروع والشعارات ورقم التواصل</p>
+                </div>
+                <button onclick="closeSettings()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all shadow-sm border border-slate-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-grow space-y-7">
+                <div>
+                    <h4 class="text-[11px] uppercase tracking-wider font-extrabold text-slate-400 mb-3">الفروع المتاحة</h4>
+                    <div id="branches-list" class="space-y-2.5">
+                        <div class="text-center text-slate-400 text-sm py-4 font-bold">جاري التحميل...</div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200/60"></div></div>
+                    <div class="relative flex justify-center"><span id="form-mode-title" class="bg-white px-4 text-[11px] uppercase tracking-widest font-extrabold text-blue-600 bg-blue-50/80 rounded-full py-1">إضافة فرع جديد</span></div>
+                </div>
+
+                <div class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">اسم الفرع</label>
+                        <input type="text" id="new-branch-name" placeholder="مثال: صيدلية الشفاء - الرئيسي" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">رقم التواصل / الواتساب</label>
+                        <input type="text" id="new-branch-whatsapp" placeholder="مثال: 01000000000" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 outline-none" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">رابط الشعار (URL)</label>
+                        <input type="text" id="new-branch-logo" placeholder="https://example.com/logo.png" class="w-full rounded-xl p-3.5 text-sm font-bold text-slate-800 outline-none" dir="ltr">
+                    </div>
+                    <div class="flex gap-2.5 pt-2">
+                        <button id="save-branch-btn" onclick="saveBranch()" class="flex-1 bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all text-sm shadow-md shadow-blue-500/20 active:scale-[0.98]">
+                            حفظ الفرع
+                        </button>
+                        <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden bg-slate-100 text-slate-600 font-bold py-3.5 px-4 rounded-xl hover:bg-slate-200 transition-all text-sm">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي الواجهة المحدثة -->
+    <div class="max-w-[1280px] mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
+        
+        <!-- الهيدر الاحترافي العلوي -->
+        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-white/80 backdrop-blur-xl p-5 sm:p-6 rounded-3xl shadow-[0_10px_35px_-5px_rgba(0,0,0,0.05)] border border-slate-200/70">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div id="header-logo-container" class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl h-14 w-14 flex items-center justify-center overflow-hidden shrink-0 shadow-md shadow-blue-500/20">
+                    <span class="text-2xl">💊</span>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">نظام الطباعة الحرارية المتطور</h1>
+                        <span id="active-branch-badge" class="bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-black px-3 py-1 rounded-full tracking-wide hidden sm:inline-block">جاري التحميل</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-500 text-xs mt-1 font-medium">
+                        <span id="cloud-indicator" class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                        <span id="cloud-status" class="tracking-wide">جاري الاتصال...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <button onclick="openSettings()" class="flex-1 md:flex-none bg-white text-slate-700 px-5 py-3 rounded-2xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2text-sm border border-slate-200 shadow-sm active:scale-[0.98]">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    الإعدادات
+                </button>
+                <button onclick="window.print()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-7 py-3 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/25 active:scale-[0.98]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    طباعة الجرعات
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- لوحة إدخال التفاصيل -->
+            <div class="lg:col-span-5 sticky top-6">
+                <div class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-200/80">
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                        <h2 class="font-black text-slate-900 text-lg flex items-center gap-2">
+                            <span>تركيب الجرعة الطبية</span>
+                        </h2>
+                        <span class="text-xs text-slate-400 font-bold">حدد الخيارات بالأسفل</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">الكمية</label>
+                                <select id="input-qty" onchange="handleQtyChange()" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value="دهان">دهان</option>
+                                    <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}</option>`)</script>
+                                </select>
+                            </div>
+                            <div id="type-container" class="transition-all duration-300">
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">الشكل الدوائي</label>
+                                <select id="input-type" onchange="handleTypeChange()" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value="سم">سم</option>
+                                    <option value="نصف">نصف</option>
+                                    <option value="قرص">قرص</option>
+                                    <option value="نصف قرص">نصف قرص</option>
+                                    <option value="كيس">كيس</option>
+                                    <option value=" كيس/نصف كوب">كيس/نصف كوب</option>
+                                    <option value=" كيس/ كوب">كيس/ كوب</option>
+                                    <option value="كبسولة">كبسولة</option>
+                                    <option value="معلقة">معلقة</option>
+                                    <option value="لبوسة">لبوسة</option>
+                                    <option value="حقنة">حقنة</option>
+                                    <option value=" حقنة عضل">حقنة عضل</option>
+                                    <option value="امبول علي كوب لبن ">امبول علي كوب لبن </option>
+                                    <option value="نقطة">نقطة</option>
+                                    <option value="بخة">بخة</option>
+                                    <option value="غسول">غسول</option>
+                                    <option value="لزقة علي اللسان">لزقة علي اللسان</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="usage-method-container" class="slide-up">
+                            <label class="block text-[11px] font-extrabold text-blue-600 mb-1.5">طريقة الاستخدام (مخصص)</label>
+                            <select id="input-usage-method" class="w-full rounded-2xl p-3.5 font-bold text-blue-900 bg-blue-50/70 border-blue-200 outline-none">
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">التكرار</label>
+                                <select id="input-freq" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value=" عند اللزوم"> عند اللزوم</option>
+                                    <option value="مرة واحدة">مرة واحدة</option>
+                                    <option value="مرتين">مرتين</option>
+                                    <option value="3 مرات">3 مرات</option>
+                                    <option value="4 مرات">4 مرات</option>
+                                    <option value="6 مرات">6 مرات</option>
+                                    <option value="SIZE : ">SIZE :  </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">التوقيت</label>
+                                <select id="input-timing" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value="كل">كل</option>
+                                    <option value="قبل الأكل">قبل الأكل</option>
+                                    <option value="بعد الأكل">بعد الأكل</option>
+                                    <option value="قبل النوم">قبل النوم</option>
+                                    <option value="على الريق">على الريق</option>
+                                    <option value="قبل الفطار">قبل الفطار </option>
+                                    <option value="بعد الفطار">بعد الفطار</option>
+                                    <option value="قبل الغداء">قبل الغداء</option>
+                                    <option value="بعد الغداء">بعد الغداء</option>
+                                    <option value="قبل العشاء">قبل العشاء</option>
+                                    <option value="بعد العشاء">بعد العشاء</option>
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
+                                    <option value="XXXL">XXXL</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">الفاصل الزمني</label>
+                                <select id="input-timing-offset" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="" selected>بدون</option>
+                                    <option value="بـ 5 دقائق">بـ 5 دقائق</option>
+                                    <option value="بـ 10 دقائق">بـ 10 دقائق</option>
+                                    <option value="بـ ربع ساعة">بـ ربع ساعة</option>
+                                    <option value="بـ ثلث ساعة">بـ ثلث ساعة</option>
+                                    <option value="بـ نصف ساعة">بـ نصف ساعة</option>
+                                    <option value="بـ ساعة">بـ ساعة</option>
+                                    <option value="بـ ساعتين">بـ ساعتين</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">المدة (رقم)</label>
+                                <input type="number" id="input-dur-val" placeholder="مثال: 5" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 text-center outline-none placeholder-slate-400">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-extrabold text-slate-500 mb-1.5">الوحدة</label>
+                                <select id="input-dur-unit" class="w-full rounded-2xl p-3.5 font-bold text-slate-800 outline-none">
+                                    <option value="ساعات">ساعات</option>
+                                    <option value="يوم">يوم</option>
+                                    <option value="أيام">أيام</option>
+                                    <option value="أسابيع">أسابيع</option>
+                                    <option value="شهر">شهر</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-3">
+                            <button onclick="addDosage()" class="w-full bg-slate-900 text-white font-extrabold text-base py-4 rounded-2xl hover:bg-slate-800 transition-all flex justify-center items-center gap-2 group shadow-lg shadow-slate-900/10 active:scale-[0.99]">
+                                <span>إضافة للطباعة</span> 
+                                <svg class="w-5 h-5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قائمة الجرعات المعروضة للمعاينة -->
+            <div class="lg:col-span-7 flex flex-col h-full">
+                <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-[0_10px_30px_-5px_rgba(0,0,0,0.03)] border border-slate-200/80 flex-grow flex flex-col overflow-hidden min-h-[520px]">
+                    
+                    <div class="px-7 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h2 class="font-black text-slate-900 text-lg">قائمة الملصقات الجاهزة</h2>
+                            <span class="text-xs text-slate-400 font-bold">معاينة فورية قبل الطباعة</span>
+                        </div>
+                        <div class="bg-blue-50 text-blue-700 text-xs font-black px-3.5 py-1.5 rounded-xl border border-blue-100 flex items-center gap-2">
+                            <span>العدد الحالي</span>
+                            <span id="label-count" class="bg-blue-600 text-white px-2 py-0.5 rounded-lg text-xs">0</span>
+                        </div>
+                    </div>
+                    
+                    <div id="labels-list" class="p-6 grid grid-cols-1 xl:grid-cols-2 gap-4 content-start flex-grow bg-slate-50/30">
+                    </div>
+
+                    <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-slate-400 p-12 bg-slate-50/20">
+                        <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mb-4 shadow-sm border border-slate-100">
+                            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <h3 class="font-black text-slate-700 text-base mb-1">لا توجد ملصقات في القائمة</h3>
+                        <p class="font-semibold text-slate-400 text-xs">قم بإضافة عناصر للجرعة من اللوحة الجانبية لبدء الطباعة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- منطقة الطباعة الفعالة -->
+    <div id="print-area" class="hidden"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const _encConfig = "eyJBcGlLZXkiOiJBSXphU3lDbmQ3OVZna0NGT195U3J0a251WUZOYlJPOUFERENTY0kiLCJhdXRoRG9tYWluIjoibGVhYmwtNzA1YjMuZmlyZWJhc2VhcHAuY29tIiwiZGF0YWJhc2VVUkwiOiJodHRwczovL2xlYWJsLTcwNWIzLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbSIsInByb2plY3RJZCI6ImxlYWJsLTcwNWIzIiwic3RvcmFnZUJ1Y2tldCI6ImxlYWJsLTcwNWIzLmZpcmViYXNlc3RvcmFnZS5hcHAiLCJtZXNzYWdpbmdTZW5kZXJJZCI6IjEwNjMwNDE2OTk2NDAiLCJhcHBJZCI6IjE6MTA2MzA0MTY5OTY0MDp3ZWI6NzE4MmE1OTE2M2JlZWUwM2I1N2JjZCJ9";
+        
+        const firebaseConfig = JSON.parse(atob(_encConfig));
+        firebaseConfig.apiKey = firebaseConfig.ApiKey; 
+        delete firebaseConfig.ApiKey;
+
+        window.dosagesArray = [];
+        window.branches = JSON.parse(localStorage.getItem('pharmacy_branches')) || [{ id: '1', name: "الفرع الرئيسي", logo: "", whatsapp: "" }];
+        window.activeBranchId = localStorage.getItem('pharmacy_active_branch') || '1';
+        window.editingBranchId = null;
+        
+        let db;
+        const dbPath = 'pharmacy_settings/branches_data';
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+            const settingsRef = ref(db, dbPath);
+
+            onValue(settingsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    window.branches = data.branches || [];
+                    window.activeBranchId = data.activeBranchId || null;
+                    
+                    localStorage.setItem('pharmacy_branches', JSON.stringify(window.branches));
+                    localStorage.setItem('pharmacy_active_branch', window.activeBranchId);
+                    
+                    document.getElementById('cloud-status').innerText = "متصل وسحابي";
+                    document.getElementById('cloud-status').className = "tracking-wide text-emerald-600 font-bold text-[11px]";
+                    document.getElementById('cloud-indicator').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50";
+                } else {
+                    saveDataToDB(); 
+                }
+                updateUIWithActiveBranch();
+                renderBranchesList();
+                window.renderLabels();
+            }, (error) => {
+                useLocalFallback();
+            });
+        } catch (e) {
+            useLocalFallback();
+        }
+
+        function useLocalFallback() {
+            document.getElementById('cloud-status').innerText = "وضع محلي";
+            document.getElementById('cloud-status').className = "tracking-wide text-amber-600 font-bold text-[11px]";
+            document.getElementById('cloud-indicator').className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+            updateUIWithActiveBranch();
+            renderBranchesList();
+            window.renderLabels();
+        }
+
+        function saveDataToDB() {
+            localStorage.setItem('pharmacy_branches', JSON.stringify(window.branches));
+            localStorage.setItem('pharmacy_active_branch', window.activeBranchId);
+            if (db) {
+                set(ref(db, dbPath), {
+                    branches: window.branches,
+                    activeBranchId: window.activeBranchId
+                }).catch(e => console.error("Firebase Error:", e));
+            }
+        }
+
+        function updateUIWithActiveBranch() {
+            const active = window.branches.find(b => b.id === window.activeBranchId);
+            const badge = document.getElementById('active-branch-badge');
+            const headerLogo = document.getElementById('header-logo-container');
+            
+            if (active) {
+                badge.innerText = active.name;
+                badge.classList.remove('hidden');
+                if(active.logo) {
+                    headerLogo.innerHTML = `<img src="${active.logo}" class="w-full h-full object-contain p-1 rounded-xl bg-white" onerror="this.src=''; this.alt='💊'">`;
+                } else {
+                    headerLogo.innerHTML = `<span class="text-xl font-black text-white">${active.name.charAt(0)}</span>`;
+                }
+            } else {
+                badge.innerText = "بدون فرع";
+            }
+        }
+
+        function renderBranchesList() {
+            const list = document.getElementById('branches-list');
+            if(window.branches.length === 0) {
+                list.innerHTML = `<div class="text-center text-slate-400 py-3 text-sm font-bold">لا توجد فروع</div>`;
+                return;
+            }
+
+            list.innerHTML = window.branches.map(branch => {
+                const isActive = branch.id === window.activeBranchId;
+                return `
+                <div class="flex items-center justify-between p-3.5 border rounded-2xl transition-all ${isActive ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-200'}">
+                    <div class="flex items-center gap-3 cursor-pointer flex-grow" onclick="setActiveBranch('${branch.id}')">
+                        <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                            ${branch.logo ? `<img src="${branch.logo}" class="w-full h-full object-contain p-1">` : `<span class="text-sm font-black text-slate-500">${branch.name.charAt(0)}</span>`}
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-black ${isActive ? 'text-blue-900' : 'text-slate-700'} text-sm">${branch.name}</span>
+                            ${branch.whatsapp ? `<span class="text-[11px] text-slate-400 font-bold" dir="ltr">${branch.whatsapp}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="editBranch('${branch.id}')" class="text-slate-400 hover:text-blue-600 p-2 rounded-xl hover:bg-blue-50 transition-colors" title="تعديل">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </button>
+                        <button onclick="deleteBranch('${branch.id}')" class="text-slate-300 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition-colors" title="حذف">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        window.editBranch = function(id) {
+            const branch = window.branches.find(b => b.id === id);
+            if(branch) {
+                document.getElementById('new-branch-name').value = branch.name;
+                document.getElementById('new-branch-logo').value = branch.logo || '';
+                document.getElementById('new-branch-whatsapp').value = branch.whatsapp || '';
+                
+                window.editingBranchId = id;
+                
+                document.getElementById('form-mode-title').innerText = "تعديل الفرع الحالي";
+                document.getElementById('save-branch-btn').innerText = "تحديث البيانات";
+                document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            }
+        };
+
+        window.cancelEdit = function() {
+            window.editingBranchId = null;
+            document.getElementById('new-branch-name').value = '';
+            document.getElementById('new-branch-logo').value = '';
+            document.getElementById('new-branch-whatsapp').value = '';
+            
+            document.getElementById('form-mode-title').innerText = "إضافة فرع جديد";
+            document.getElementById('save-branch-btn').innerText = "حفظ الفرع";
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        };
+
+        window.saveBranch = function() {
+            const name = document.getElementById('new-branch-name').value.trim();
+            const logo = document.getElementById('new-branch-logo').value.trim();
+            const whatsapp = document.getElementById('new-branch-whatsapp').value.trim();
+            
+            if(!name) { window.showToast("يرجى إدخال اسم الفرع", true); return; }
+
+            if(window.editingBranchId) {
+                const idx = window.branches.findIndex(b => b.id === window.editingBranchId);
+                if(idx !== -1) {
+                    window.branches[idx].name = name;
+                    window.branches[idx].logo = logo;
+                    window.branches[idx].whatsapp = whatsapp;
+                }
+                window.showToast("تم تحديث بيانات الفرع");
+                window.cancelEdit(); 
+            } else {
+                const newBranch = { id: Date.now().toString(), name, logo, whatsapp };
+                window.branches.push(newBranch);
+                window.activeBranchId = newBranch.id;
+                
+                document.getElementById('new-branch-name').value = '';
+                document.getElementById('new-branch-logo').value = '';
+                document.getElementById('new-branch-whatsapp').value = '';
+                window.showToast("تم إضافة الفرع الجديد");
+            }
+
+            saveDataToDB();
+            updateUIWithActiveBranch();
+            renderBranchesList();
+            window.renderLabels();
+        };
+
+        window.setActiveBranch = function(id) {
+            window.activeBranchId = id;
+            saveDataToDB();
+            updateUIWithActiveBranch();
+            window.renderLabels();
+            renderBranchesList();
+            window.showToast("تم تفعيل الفرع");
+        };
+
+        window.deleteBranch = function(id) {
+            if(confirm("هل أنت تأكد من حذف هذا الفرع؟")) {
+                window.branches = window.branches.filter(b => b.id !== id);
+                if(window.activeBranchId === id) window.activeBranchId = window.branches.length ? window.branches[0].id : null;
+                saveDataToDB();
+                renderBranchesList();
+                updateUIWithActiveBranch();
+                window.renderLabels();
+                if(window.editingBranchId === id) window.cancelEdit();
+            }
+        };
+
+        window.openSettings = () => {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            renderBranchesList(); 
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        };
+        
+        window.closeSettings = () => {
+            const modal = document.getElementById('settings-modal');
+            const content = document.getElementById('settings-content');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+        };
+        
+        window.showToast = function(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-msg').innerText = message;
+            
+            if (isError) {
+                icon.innerText = '✕';
+                icon.className = 'flex items-center justify-center w-6 h-6 rounded-full bg-rose-500 text-white text-xs font-black shadow-sm';
+            } else {
+                icon.innerText = '✓';
+                icon.className = 'flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white text-xs font-black shadow-sm';
+            }
+            
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 2500);
+        };
+
+        function convertToArabicNumerals(text) {
+            const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return text.toString().replace(/[0-9]/g, function(w) {
+                return arabicNumbers[w];
+            });
+        }
+
+        const usageOptionsData = {
+            'لبوسة': ['شرجية', 'مهبلية'],
+            'نقطة': ['بالفم', 'بالأنف', 'بالعين', 'على الفروة'],
+            'بخة': ['على الفروة', 'على الجلد']
+        };
+
+        window.handleQtyChange = function() {
+            const qty = document.getElementById('input-qty').value;
+            const typeContainer = document.getElementById('type-container');
+            const typeSelect = document.getElementById('input-type');
+
+            if (qty === 'دهان') {
+                typeContainer.classList.add('opacity-30', 'pointer-events-none');
+                typeSelect.value = ''; 
+                handleTypeChange();    
+            } else {
+                typeContainer.classList.remove('opacity-30', 'pointer-events-none');
+            }
+        };
+
+        window.handleTypeChange = function() {
+            const type = document.getElementById('input-type').value;
+            const container = document.getElementById('usage-method-container');
+            const select = document.getElementById('input-usage-method');
+
+            if (type && usageOptionsData[type]) {
+                select.innerHTML = usageOptionsData[type].map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                container.classList.remove('slide-up');
+                container.classList.add('slide-down', 'mt-3.5');
+            } else {
+                container.classList.remove('slide-down', 'mt-3.5');
+                container.classList.add('slide-up');
+                select.innerHTML = '';
+            }
+        };
+
+        window.addDosage = function() {
+            const qty = document.getElementById('input-qty').value;
+            const typeContainerDisabled = document.getElementById('type-container').classList.contains('pointer-events-none');
+            const type = typeContainerDisabled ? "" : document.getElementById('input-type').value;
+            
+            const freq = document.getElementById('input-freq').value;
+            const timing = document.getElementById('input-timing').value;
+            const timingOffset = document.getElementById('input-timing-offset').value; 
+            const durVal = document.getElementById('input-dur-val').value;
+            const durUnit = document.getElementById('input-dur-unit').value;
+            
+            const methodSelect = document.getElementById('input-usage-method');
+            const methodContainer = document.getElementById('usage-method-container');
+
+            let methodStr = "";
+            if (!methodContainer.classList.contains('slide-up') && methodSelect.value) {
+                methodStr = methodSelect.value;
+            }
+
+            let line1Parts = [];
+            if (qty) line1Parts.push(qty);
+            if (type) line1Parts.push(type);
+            if (methodStr) line1Parts.push(methodStr);
+            if (freq) line1Parts.push(freq);
+            
+            let rawLine1 = line1Parts.join(" ");
+
+            let line2Parts = [];
+            if (timing === 'كل') {
+                if (durVal) {
+                    line2Parts.push(`كل ${durVal} ${durUnit}`);
+                } else {
+                    line2Parts.push(`كل`);
+                }
+            } else {
+                let timingCombined = timing;
+                
+                if (timing && timingOffset) {
+                    timingCombined = `${timing} ${timingOffset}`;
+                } else if (!timing && timingOffset) {
+                    timingCombined = timingOffset; 
+                }
+
+                if (timingCombined) line2Parts.push(timingCombined);
+                if (durVal) line2Parts.push(`لمدة ${durVal} ${durUnit}`);
+            }
+            
+            let rawLine2 = line2Parts.join(" ");
+
+            if (!rawLine1 && !rawLine2) { 
+                window.showToast("لا يمكن إضافة جرعة فارغة", true); 
+                return; 
+            }
+
+            const line1 = convertToArabicNumerals(rawLine1); 
+            const line2 = convertToArabicNumerals(rawLine2); 
+
+            window.dosagesArray.push({ id: Date.now(), line1, line2 });
+            
+            document.getElementById('input-qty').value = '';
+            document.getElementById('input-type').value = '';
+            document.getElementById('input-freq').value = '';
+            document.getElementById('input-timing').value = '';
+            document.getElementById('input-timing-offset').value = ''; 
+            document.getElementById('input-dur-val').value = '';
+            handleQtyChange(); 
+            
+            window.renderLabels();
+            window.showToast("تم إضافة الجرعة بنجاح");
+        };
+
+        window.removeDosage = function(id) {
+            window.dosagesArray = window.dosagesArray.filter(d => d.id !== id);
+            window.renderLabels();
+        };
+
+        window.renderLabels = function() {
+            const list = document.getElementById('labels-list');
+            const printArea = document.getElementById('print-area');
+            const emptyState = document.getElementById('empty-state');
+            document.getElementById('label-count').innerText = window.dosagesArray.length;
+            
+            list.innerHTML = ''; printArea.innerHTML = '';
+
+            if (window.dosagesArray.length === 0) {
+                emptyState.classList.remove('hidden');
+                return; 
+            } 
+            emptyState.classList.add('hidden');
+
+            const activeBranch = window.branches.find(b => b.id === window.activeBranchId) || {name: "الفرع الرئيسي", logo: "", whatsapp: ""};
+
+            // 1. عرض بطاقات المعاينة التفاعلية داخل الصفحة
+            window.dosagesArray.forEach((item) => {
+                let combinedText = "";
+                if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
+                else if (item.line1) combinedText = item.line1;
+                else if (item.line2) combinedText = item.line2;
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200/90 rounded-2xl relative group overflow-hidden flex flex-col justify-between p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all";
+                card.innerHTML = `
+                    <button onclick="removeDosage(${item.id})" class="absolute top-3 left-3 bg-slate-100 hover:bg-rose-500 hover:text-white text-slate-400 rounded-xl w-8 h-8 flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-all shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    
+                    <div class="mb-3">
+                        <span class="text-[10px] uppercase tracking-wider font-extrabold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">تفاصيل الجرعة</span>
+                        <div class="text-base font-black text-slate-900 leading-snug mt-2.5">${combinedText}</div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="h-5 object-contain">` : ''}
+                            <span class="text-xs font-bold text-slate-600">${activeBranch.name}</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400" dir="ltr">${activeBranch.whatsapp || '---'}</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+
+            // 2. إعداد كروت الطباعة الحرارية 30×20 مم بمواصفات الباركود الذي يحمل الجرعة فقط
+            window.dosagesArray.forEach((item, index) => {
+                let combinedText = "";
+                if (item.line1 && item.line2) combinedText = `${item.line1}، ${item.line2}`;
+                else if (item.line1) combinedText = item.line1;
+                else if (item.line2) combinedText = item.line2;
+
+                const printPage = document.createElement('div');
+                printPage.className = "label-page";
+
+                const qrBoxId = `qr-code-${item.id}-${index}`; 
+
+                printPage.innerHTML = `
+                    <div class="dose-top-section">
+                        <div class="dose-text-fluid">${combinedText}</div>
+                    </div>
+                    <div class="info-bottom-section">
+                        <div class="brand-details-box">
+                            <div class="brand-header-row">
+                                ${activeBranch.logo ? `<img src="${activeBranch.logo}" class="print-logo-img">` : ''}
+                                <span class="branch-text">${activeBranch.name}</span>
+                            </div>
+                            <div class="contact-phone" dir="ltr">${activeBranch.whatsapp || ''}</div>
+                        </div>
+                        <div class="qr-box" id="${qrBoxId}"></div>
+                    </div>
+                `;
+                
+                printArea.appendChild(printPage);
+
+                // توليد الـ QR Code ليحمل نص الجرعة فقط بخفيف ومستقر للطباعة السريعة
+                new QRCode(document.getElementById(qrBoxId), {
+                    text: combinedText || "لا توجد تفاصيل",
+                    width: 80, 
+                    height: 80,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            handleQtyChange();
+            const unitSelect = document.getElementById('input-dur-unit');
+            let hasHours = false;
+            for(let i=0; i<unitSelect.options.length; i++){
+                if(unitSelect.options[i].value === 'ساعات') hasHours = true;
+            }
+            if(!hasHours) {
+                const opt = document.createElement('option');
+                opt.value = 'ساعات';
+                opt.text = 'ساعات';
+                unitSelect.insertBefore(opt, unitSelect.firstChild);
+                unitSelect.value = 'ساعات';
+            }
+        });
+    </script>
+</body>
+</html>
