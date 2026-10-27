@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الطباعة الحرارية الاحترافي المتقدم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Tajawal', sans-serif; box-sizing: border-box; }
+        
+        /* خلفية أوف وايت فاخرة مع الكحلي الداكن */
+        body { 
+            background-color: #f8f6f0;
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        /* ==========================================
+           إعدادات الطباعة الحرارية الدقيقة (30x20 مم - كل نصفي 30x10 مم)
+           ========================================== */
+        @media print {
+            @page { 
+                size: 30mm 20mm; 
+                margin: 0; 
+            }
+            
+            * {
+                -webkit-font-smoothing: none !important;
+                font-smooth: never !important;
+                color: #000 !important;
+                box-sizing: border-box !important;
+            }
+
+            body, html { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                background: white !important; 
+                width: 30mm !important;
+                height: 20mm !important;
+            }
+
+            body > *:not(#print-area) { 
+                display: none !important; 
+            }
+
+            #print-area { 
+                display: block !important; 
+                width: 30mm !important; 
+                height: 20mm !important;
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+            
+            .label-page { 
+                width: 30mm !important; 
+                height: 20mm !important; 
+                display: flex !important; 
+                flex-direction: column !important; 
+                page-break-after: always; 
+                page-break-inside: avoid; 
+                overflow: hidden !important; 
+                background: white !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+            }
+            
+            /* كل ملصق فرعي 30مم * 10مم */
+            .dose-half { 
+                width: 30mm !important; 
+                height: 10mm !important; 
+                display: flex !important; 
+                flex-direction: column !important; 
+                overflow: hidden !important; 
+                padding: 0.2mm 0.3mm !important; /* استغلال كامل المساحة يمين وشمال */
+                justify-content: flex-start !important;
+                page-break-inside: avoid;
+                background: white !important;
+                position: relative !important;
+                border: none !important;
+            }
+
+            .print-header-row {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                border-bottom: 0.8pt solid #000 !important;
+                padding-bottom: 0.1mm !important;
+                margin-bottom: 0.2mm !important;
+                height: 2.3mm !important; /* تقليل الارتفاع لإعطاء مجال للسطر الأخير */
+            }
+
+            .print-branch-name {
+                font-size: 6.0pt !important;
+                font-weight: 900 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 58% !important;
+                text-align: right !important;
+                line-height: 1 !important;
+            }
+
+            .print-contact-phone {
+                font-size: 5.5pt !important;
+                font-weight: 900 !important;
+                white-space: nowrap !important;
+                direction: ltr !important;
+                text-align: left !important;
+                max-width: 42% !important;
+                line-height: 1 !important;
+            }
+
+            .print-body-row {
+                width: 100% !important;
+                height: 7.2mm !important; /* زيادة الارتفاع المتاح لمنع قطع السطر الأخير */
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+
+            /* استغلال كامل المساحة للنص بخط واضح ومقروء يمنع انقطاع الحروف */
+            .dose-text-centered {
+                width: 100% !important;
+                font-size: 6.4pt !important; /* حجم متناسب لاستيعاب 3 أسطر كاملاً */
+                font-weight: 900 !important;
+                line-height: 1.05 !important; /* تحسين ارتفاع السطر لعدم الخروج من الكادر */
+                text-align: center !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                padding-left: 9.5mm !important; 
+                padding-right: 0.1mm !important;
+            }
+
+            /* خطوط التكرار الجانبية بفاصل 1.2مم تماماً */
+            .frequency-lines-direct {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                justify-content: center !important;
+                gap: 1.2mm !important; /* الفاصل الدقيق المطلوب */
+                flex-shrink: 0 !important;
+                position: absolute !important;
+                left: 0.3mm !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                width: 8.8mm !important;
+            }
+
+            .freq-line-bar {
+                width: 8.8mm !important;
+                height: 0.5pt !important;
+                background-color: #000 !important;
+                border-top: 0.5pt solid #000 !important;
+                display: block !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+        /* ========================================== */
+
+        /* تصميم الكحلي الأنيق على الأوف وايت */
+        .navy-panel {
+            background: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #1e293b;
+        }
+
+        .navy-card {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+        }
+
+        .offwhite-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.05);
+        }
+
+        .gradient-btn {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.3);
+        }
+
+        .gradient-btn:hover {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+
+        .accent-btn {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+        }
+
+        /* خطوط التكرار في المعاينة التفاعلية */
+        .screen-freq-bar {
+            width: 24px;
+            height: 2px;
+            background-color: #38bdf8;
+            border-radius: 1px;
+        }
+
+        select, input {
+            background-color: #ffffff !important;
+            border: 1.5px solid #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        select:focus, input:focus {
+            border-color: #0284c7 !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 selection:bg-slate-800 selection:text-white">
+
+    <!-- التنبيهات العائمة -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl transform transition-all duration-300 translate-y-28 opacity-0 z-50 flex items-center gap-3 border border-slate-700 pointer-events-none">
+        <span id="toast-icon" class="text-sky-400 font-bold text-lg">✓</span>
+        <span id="toast-msg" class="font-bold text-sm">تمت العملية بنجاح</span>
+    </div>
+
+    <!-- نافذة إعدادات الصيدلية -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="navy-panel rounded-3xl w-full max-w-md p-6 shadow-2xl relative border border-slate-700">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
+                <h3 class="text-base font-black text-white flex items-center gap-2">⚙️ إعدادات بيانات الصيدلية</h3>
+                <button onclick="closeSettings()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:bg-slate-700 text-sm">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">اسم الصيدلية / الطبيب</label>
+                    <input type="text" id="branch-name-input" class="w-full rounded-xl p-3 text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">رقم الهاتف للاستفسار</label>
+                    <input type="text" id="branch-phone-input" class="w-full rounded-xl p-3 text-sm font-bold" dir="ltr">
+                </div>
+                <button onclick="saveSettings()" class="w-full accent-btn text-white font-black py-3.5 rounded-xl text-sm mt-2 shadow-lg">
+                    حفظ التغييرات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إدارة المقترحات والجرعات السريعة -->
+    <div id="preset-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div class="navy-panel rounded-3xl w-full max-w-lg p-6 shadow-2xl relative border border-slate-700">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-800 pb-3">
+                <h3 class="text-base font-black text-white flex items-center gap-2">⚡ إدارة المقترحات والجرعات السريعة</h3>
+                <button onclick="closePresetModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:bg-slate-700 text-sm">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 space-y-3">
+                    <h4 id="preset-form-title" class="text-xs font-black text-sky-400">إضافة مقترح جرعة جديد</h4>
+                    <input type="hidden" id="edit-preset-id" value="">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1">عنوان المقترح (يظهر على الزر)</label>
+                        <input type="text" id="preset-title-input" placeholder="مثال: قرص مرتين بعد الأكل" class="w-full rounded-xl p-2.5 text-xs font-bold">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1">الكمية</label>
+                            <select id="p-qty" class="w-full rounded-xl p-2 font-bold text-xs">
+                                <option value="">بدون</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="دهان">دهان</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1">الشكل</label>
+                            <select id="p-type" class="w-full rounded-xl p-2 font-bold text-xs">
+                                <option value="">بدون</option>
+                                <option value="قرص">قرص</option>
+                                <option value="كبسولة">كبسولة</option>
+                                <option value="نصف قرص">نصف قرص</option>
+                                <option value="معلقة">معلقة</option>
+                                <option value="كيس">كيس</option>
+                                <option value="حقنة">حقنة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1">التكرار</label>
+                            <select id="p-freq" class="w-full rounded-xl p-2 font-bold text-xs">
+                                <option value="">بدون</option>
+                                <option value="عند اللزوم">عند اللزوم</option>
+                                <option value="مرة واحدة">مرة واحدة</option>
+                                <option value="مرتين">مرتين</option>
+                                <option value="3 مرات">3 مرات</option>
+                                <option value="4 مرات">4 مرات</option>
+                                <option value="6 مرات">6 مرات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 mb-1">التوقيت</label>
+                            <select id="p-timing" class="w-full rounded-xl p-2 font-bold text-xs">
+                                <option value="">بدون</option>
+                                <option value="قبل الأكل">قبل الأكل</option>
+                                <option value="بعد الأكل">بعد الأكل</option>
+                                <option value="قبل النوم">قبل النوم</option>
+                                <option value="كل 12 ساعة">كل 12 ساعة</option>
+                                <option value="كل 8 ساعات">كل 8 ساعات</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="savePresetItem()" class="flex-1 accent-btn text-white font-black py-2.5 rounded-xl text-xs">حفظ المقترح</button>
+                        <button onclick="resetPresetForm()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2.5 rounded-xl text-xs">جديد</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-black text-slate-300 mb-2">المقترحات المحفوظة حالياً:</h4>
+                    <div id="presets-management-list" class="max-h-44 overflow-y-auto space-y-1.5 pr-1">
+                        <!-- تملأ بـ JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[1300px] mx-auto space-y-6">
+        
+        <!-- الهيدر الكحلي الفاخر -->
+        <header class="navy-panel p-5 sm:p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-5 shadow-xl">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-2xl shadow-lg shrink-0">
+                    💊
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                        نظام الطباعة الحرارية الاحترافي
+                    </h1>
+                    <p class="text-xs font-bold text-sky-400 mt-1" id="pharmacy-display-title">صيدلية د/ ولاء | 01286766177</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 w-full md:w-auto flex-wrap sm:flex-nowrap">
+                <button onclick="openPresetModal()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all border border-slate-700 flex items-center justify-center gap-2">
+                    ⚡ إدارة المقترحات
+                </button>
+                <button onclick="openSettings()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all border border-slate-700 flex items-center justify-center gap-2">
+                    ⚙️ الصيدلية
+                </button>
+                <button onclick="window.print()" class="flex-1 sm:flex-none accent-btn text-white px-7 py-3 rounded-2xl font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg">
+                    🖨️ طباعة الملصقات
+                </button>
+            </div>
+        </header>
+
+        <!-- قسم المقترحات والجرعات السريعة التفاعلية -->
+        <div class="offwhite-card rounded-3xl p-5 shadow-sm">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-black text-slate-800 flex items-center gap-2">⚡ الجرعات المقترحة (اضغط للإضافة الفورية)</h3>
+                <span class="text-[11px] text-slate-500 font-bold">انقر على المقترح لإضافته فوراً لقائمة الطباعة</span>
+            </div>
+            <div id="quick-presets" class="flex flex-wrap gap-2">
+                <!-- يتم توليدها بواسطة JS -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- نموذج إدخال الجرعة المخصصة -->
+            <div class="lg:col-span-5">
+                <div class="offwhite-card rounded-3xl p-6 space-y-4 shadow-sm">
+                    <h2 class="font-black text-slate-900 text-base flex items-center gap-2 border-b border-slate-200 pb-3">
+                        <span class="w-2.5 h-5 bg-sky-600 rounded-full inline-block"></span>
+                        صياغة جرعة جديدة
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">الكمية</label>
+                            <select id="input-qty" class="w-full rounded-xl p-3 font-bold text-sm">
+                                <option value="" selected>بدون</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="دهان">دهان</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">الشكل الدوائي</label>
+                            <select id="input-type" class="w-full rounded-xl p-3 font-bold text-sm">
+                                <option value="" selected>بدون</option>
+                                <option value="قرص">قرص</option>
+                                <option value="كبسولة">كبسولة</option>
+                                <option value="نصف قرص">نصف قرص</option>
+                                <option value="سم">سم</option>
+                                <option value="معلقة">معلقة</option>
+                                <option value="كيس">كيس</option>
+                                <option value="لبوسة">لبوسة</option>
+                                <option value="حقنة">حقنة</option>
+                                <option value="نقطة">نقطة</option>
+                                <option value="بخة">بخة</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">التكرار</label>
+                            <select id="input-freq" class="w-full rounded-xl p-3 font-bold text-sm">
+                                <option value="" selected>بدون</option>
+                                <option value="عند اللزوم">عند اللزوم</option>
+                                <option value="مرة واحدة">مرة واحدة</option>
+                                <option value="مرتين">مرتين</option>
+                                <option value="3 مرات">3 مرات</option>
+                                <option value="4 مرات">4 مرات</option>
+                                <option value="6 مرات">6 مرات</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">التوقيت</label>
+                            <select id="input-timing" class="w-full rounded-xl p-3 font-bold text-sm">
+                                <option value="" selected>بدون</option>
+                                <option value="قبل الأكل">قبل الأكل</option>
+                                <option value="بعد الأكل">بعد الأكل</option>
+                                <option value="قبل النوم">قبل النوم</option>
+                                <option value="على الريق">على الريق</option>
+                                <option value="كل 12 ساعة">كل 12 ساعة</option>
+                                <option value="كل 8 ساعات">كل 8 ساعات</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">المدة (رقم)</label>
+                            <input type="number" id="input-dur-val" placeholder="مثال: 5" class="w-full rounded-xl p-3 font-bold text-sm text-center">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">الوحدة</label>
+                            <select id="input-dur-unit" class="w-full rounded-xl p-3 font-bold text-sm">
+                                <option value="أيام">أيام</option>
+                                <option value="يوم">يوم</option>
+                                <option value="ساعات">ساعات</option>
+                                <option value="أسابيع">أسابيع</option>
+                                <option value="شهر">شهر</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="addCurrentDosage()" class="w-full gradient-btn text-white font-black py-4 rounded-2xl transition-all flex justify-center items-center gap-2 text-sm shadow-md active:scale-95 mt-2">
+                        <span>إضافة لقائمة الطباعة</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- قائمة ملصقات المعاينة -->
+            <div class="lg:col-span-7">
+                <div class="offwhite-card rounded-3xl p-6 flex flex-col min-h-[480px] shadow-sm">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-4">
+                        <h2 class="font-black text-slate-900 text-base flex items-center gap-2">
+                            <span>📋</span> قائمة الملصقات الجاهزة للطباعة
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="clearAllDosages()" class="text-rose-600 hover:text-rose-700 text-xs font-bold px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200">حذف الكل</button>
+                            <span id="label-count-badge" class="bg-slate-900 text-white text-xs font-black px-3.5 py-1.5 rounded-xl shadow-sm">
+                                0 ملصقات
+                            </span>
+                        </div>
+                    </div>
+
+                    <div id="preview-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- المعاينة التفاعلية -->
+                    </div>
+
+                    <div id="empty-state" class="flex-grow flex flex-col items-center justify-center text-slate-400 py-14">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-2xl mb-3 shadow-inner">
+                            🏷️
+                        </div>
+                        <p class="font-bold text-slate-700 text-sm">لا توجد ملصقات مضافة حتى الآن</p>
+                        <p class="text-xs text-slate-500 mt-1">اختر من الجرعات السريعة أو صمم جرعة جديدة للإرسال</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- منطقة الطباعة الحرارية الخاصة -->
+    <div id="print-area"></div>
+
+    <script>
+        // إعدادات وبيانات الصيدلية
+        let pharmacyInfo = JSON.parse(localStorage.getItem('pharmacy_info')) || {
+            name: "صيدلية د/ ولاء",
+            phone: "01286766177"
+        };
+
+        // قائمة الجرعات السريعة والمقترحات
+        let quickPresetsList = JSON.parse(localStorage.getItem('quick_presets')) || [
+            { id: 1, title: "قرص مرتين بعد الأكل لمدة 5 أيام", qty: "1", type: "قرص", freq: "مرتين", timing: "بعد الأكل", durVal: "5", durUnit: "أيام" },
+            { id: 2, title: "قرص 3 مرات قبل الأكل", qty: "1", type: "قرص", freq: "3 مرات", timing: "قبل الأكل", durVal: "", durUnit: "" },
+            { id: 3, title: "كبسولة كل 12 ساعة", qty: "1", type: "كبسولة", freq: "مرتين", timing: "كل 12 ساعة", durVal: "", durUnit: "" },
+            { id: 4, title: "معلقة 3 مرات بعد الأكل", qty: "1", type: "معلقة", freq: "3 مرات", timing: "بعد الأكل", durVal: "", durUnit: "" },
+            { id: 5, title: "قرص عند اللزوم", qty: "1", type: "قرص", freq: "عند اللزوم", timing: "", durVal: "", durUnit: "" },
+            { id: 6, title: "دهان مرتين يومياً", qty: "دهان", type: "", freq: "مرتين", timing: "", durVal: "", durUnit: "" }
+        ];
+
+        let dosageList = [];
+
+        window.onload = function() {
+            document.getElementById('branch-name-input').value = pharmacyInfo.name;
+            document.getElementById('branch-phone-input').value = pharmacyInfo.phone;
+            document.getElementById('pharmacy-display-title').innerText = `${pharmacyInfo.name} | ${pharmacyInfo.phone}`;
+            renderPresets();
+            renderAll();
+        };
+
+        function renderPresets() {
+            const container = document.getElementById('quick-presets');
+            const managementList = document.getElementById('presets-management-list');
+            
+            container.innerHTML = '';
+            managementList.innerHTML = '';
+
+            quickPresetsList.forEach((preset) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-slate-900 hover:bg-slate-800 text-slate-100 text-xs font-bold px-3.5 py-2.5 rounded-xl border border-slate-700 transition-all text-right flex items-center gap-1.5 shadow-sm active:scale-95";
+                btn.innerHTML = `<span class="text-sky-400">⚡</span> ${preset.title}`;
+                btn.onclick = () => addPresetDosage(preset);
+                container.appendChild(btn);
+
+                const mgmtItem = document.createElement('div');
+                mgmtItem.className = "flex items-center justify-between bg-slate-900/80 p-2.5 rounded-xl border border-slate-700 text-xs";
+                mgmtItem.innerHTML = `
+                    <span class="font-bold text-slate-200 truncate max-w-[240px]">${preset.title}</span>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="editPreset(${preset.id})" class="bg-slate-800 hover:bg-sky-600 text-slate-300 px-2.5 py-1 rounded-lg font-bold">تعديل</button>
+                        <button onclick="deletePreset(${preset.id})" class="bg-rose-500/20 hover:bg-rose-600 text-rose-400 hover:text-white px-2.5 py-1 rounded-lg font-bold">حذف</button>
+                    </div>
+                `;
+                managementList.appendChild(mgmtItem);
+            });
+        }
+
+        function addPresetDosage(preset) {
+            const text = constructDosageText(preset.qty, preset.type, preset.freq, preset.timing, preset.durVal, preset.durUnit);
+            dosageList.push({
+                id: Date.now() + Math.random(),
+                text: text,
+                freq: preset.freq
+            });
+            showToast("تمت إضافة المقترح للطباعة");
+            renderAll();
+        }
+
+        function addCurrentDosage() {
+            const qty = document.getElementById('input-qty').value;
+            const type = document.getElementById('input-type').value;
+            const freq = document.getElementById('input-freq').value;
+            const timing = document.getElementById('input-timing').value;
+            const durVal = document.getElementById('input-dur-val').value;
+            const durUnit = document.getElementById('input-dur-unit').value;
+
+            if (!qty && !type && !freq && !timing) {
+                showToast("يرجى اختيار تفاصيل الجرعة أولاً", true);
+                return;
+            }
+
+            const text = constructDosageText(qty, type, freq, timing, durVal, durUnit);
+            dosageList.push({
+                id: Date.now() + Math.random(),
+                text: text,
+                freq: freq
+            });
+
+            document.getElementById('input-qty').value = '';
+            document.getElementById('input-type').value = '';
+            document.getElementById('input-freq').value = '';
+            document.getElementById('input-timing').value = '';
+            document.getElementById('input-dur-val').value = '';
+
+            showToast("تمت الإضافة لقائمة الطباعة");
+            renderAll();
+        }
+
+        function constructDosageText(qty, type, freq, timing, durVal, durUnit) {
+            let parts = [];
+            let mainPart = "";
+            if (qty) mainPart += qty + " ";
+            if (type) mainPart += type;
+            if (mainPart.trim()) parts.push(mainPart.trim());
+
+            if (freq) parts.push(freq);
+            if (timing) parts.push(timing);
+            if (durVal) parts.push(`لمدة ${durVal} ${durUnit}`);
+
+            return parts.join("، ");
+        }
+
+        function savePresetItem() {
+            const id = document.getElementById('edit-preset-id').value;
+            const title = document.getElementById('preset-title-input').value.trim();
+            const qty = document.getElementById('p-qty').value;
+            const type = document.getElementById('p-type').value;
+            const freq = document.getElementById('p-freq').value;
+            const timing = document.getElementById('p-timing').value;
+
+            if (!title) {
+                showToast("يرجى كتابة عنوان المقترح", true);
+                return;
+            }
+
+            if (id) {
+                quickPresetsList = quickPresetsList.map(p => p.id == id ? { ...p, title, qty, type, freq, timing } : p);
+                showToast("تم تحديث المقترح بنجاح");
+            } else {
+                const newPreset = {
+                    id: Date.now(),
+                    title,
+                    qty,
+                    type,
+                    freq,
+                    timing,
+                    durVal: "",
+                    durUnit: ""
+                };
+                quickPresetsList.push(newPreset);
+                showToast("تمت إضافة المقترح الجديد");
+            }
+
+            localStorage.setItem('quick_presets', JSON.stringify(quickPresetsList));
+            resetPresetForm();
+            renderPresets();
+        }
+
+        function editPreset(id) {
+            const preset = quickPresetsList.find(p => p.id == id);
+            if (!preset) return;
+
+            document.getElementById('edit-preset-id').value = preset.id;
+            document.getElementById('preset-title-input').value = preset.title;
+            document.getElementById('p-qty').value = preset.qty || '';
+            document.getElementById('p-type').value = preset.type || '';
+            document.getElementById('p-freq').value = preset.freq || '';
+            document.getElementById('p-timing').value = preset.timing || '';
+            document.getElementById('preset-form-title').innerText = "تعديل المقترح المحدد";
+        }
+
+        function deletePreset(id) {
+            quickPresetsList = quickPresetsList.filter(p => p.id != id);
+            localStorage.setItem('quick_presets', JSON.stringify(quickPresetsList));
+            renderPresets();
+            showToast("تم حذف المقترح بنجاح");
+        }
+
+        function resetPresetForm() {
+            document.getElementById('edit-preset-id').value = '';
+            document.getElementById('preset-title-input').value = '';
+            document.getElementById('p-qty').value = '';
+            document.getElementById('p-type').value = '';
+            document.getElementById('p-freq').value = '';
+            document.getElementById('p-timing').value = '';
+            document.getElementById('preset-form-title').innerText = "إضافة مقترح جرعة جديد";
+        }
+
+        function removeDosage(id) {
+            dosageList = dosageList.filter(item => item.id !== id);
+            renderAll();
+        }
+
+        function clearAllDosages() {
+            dosageList = [];
+            renderAll();
+            showToast("تم إفراغ قائمة الطباعة");
+        }
+
+        function getFrequencyBarsHtml(freq, isPrint = false) {
+            let count = 0;
+            if (freq === 'مرة واحدة') count = 1;
+            else if (freq === 'مرتين') count = 2;
+            else if (freq === '3 مرات') count = 3;
+            else if (freq === '4 مرات') count = 4;
+            else if (freq === '6 مرات') count = 6;
+            else return '';
+
+            if (isPrint) {
+                let bars = '';
+                for (let i = 0; i < count; i++) {
+                    bars += `<span class="freq-line-bar"></span>`;
+                }
+                return `<div class="frequency-lines-direct">${bars}</div>`;
+            } else {
+                let bars = '';
+                for (let i = 0; i < count; i++) {
+                    bars += `<div class="screen-freq-bar"></div>`;
+                }
+                return `<div class="flex flex-col gap-1.5 shrink-0 p-1.5 bg-slate-900 rounded-lg border border-slate-700" title="خطوط التكرار">${bars}</div>`;
+            }
+        }
+
+        function renderAll() {
+            const previewList = document.getElementById('preview-list');
+            const printArea = document.getElementById('print-area');
+            const emptyState = document.getElementById('empty-state');
+            const badge = document.getElementById('label-count-badge');
+
+            previewList.innerHTML = '';
+            printArea.innerHTML = '';
+
+            badge.innerText = `${dosageList.length} ملصقات`;
+
+            if (dosageList.length === 0) {
+                emptyState.style.display = 'flex';
+                return;
+            }
+            emptyState.style.display = 'none';
+
+            // 1. معاينة واجهة المستخدم
+            dosageList.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = "navy-card rounded-2xl p-4 relative group border border-slate-700 flex flex-col justify-between gap-3 shadow-md hover:border-sky-500 transition-all";
+                card.innerHTML = `
+                    <button onclick="removeDosage(${item.id})" class="absolute top-2.5 left-2.5 bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white rounded-lg w-7 h-7 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-all shadow">
+                        ✕
+                    </button>
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2 text-xs font-bold text-slate-300">
+                        <span>${pharmacyInfo.name}</span>
+                        <span dir="ltr">${pharmacyInfo.phone}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 py-1">
+                        <div class="text-sm font-black text-sky-200 flex-grow text-center">${item.text}</div>
+                        ${getFrequencyBarsHtml(item.freq, false)}
+                    </div>
+                `;
+                previewList.appendChild(card);
+            });
+
+            // 2. صفحات الطباعة الحرارية (30x20 مم لكل صفحة، كل ملصقين بصفحة)
+            for (let i = 0; i < dosageList.length; i += 2) {
+                const item1 = dosageList[i];
+                const item2 = dosageList[i+1];
+
+                const printPage = document.createElement('div');
+                printPage.className = "label-page";
+
+                let lines1 = getFrequencyBarsHtml(item1.freq, true);
+
+                let half2Html = '';
+                if (item2) {
+                    let lines2 = getFrequencyBarsHtml(item2.freq, true);
+                    half2Html = `
+                        <div class="dose-half" style="border-top: 0.5pt dashed #999 !important;">
+                            <div class="print-header-row">
+                                <span class="print-branch-name">${pharmacyInfo.name}</span>
+                                <span class="print-contact-phone">${pharmacyInfo.phone}</span>
+                            </div>
+                            <div class="print-body-row">
+                                <div class="dose-text-centered">${item2.text}</div>
+                                ${lines2}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                printPage.innerHTML = `
+                    <div class="dose-half">
+                        <div class="print-header-row">
+                            <span class="print-branch-name">${pharmacyInfo.name}</span>
+                            <span class="print-contact-phone">${pharmacyInfo.phone}</span>
+                        </div>
+                        <div class="print-body-row">
+                            <div class="dose-text-centered">${item1.text}</div>
+                            ${lines1}
+                        </div>
+                    </div>
+                    ${half2Html}
+                `;
+
+                printArea.appendChild(printPage);
+            }
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function saveSettings() {
+            const name = document.getElementById('branch-name-input').value.trim();
+            const phone = document.getElementById('branch-phone-input').value.trim();
+            if (name) pharmacyInfo.name = name;
+            if (phone) pharmacyInfo.phone = phone;
+
+            localStorage.setItem('pharmacy_info', JSON.stringify(pharmacyInfo));
+            document.getElementById('pharmacy-display-title').innerText = `${pharmacyInfo.name} | ${pharmacyInfo.phone}`;
+            closeSettings();
+            showToast("تم حفظ إعدادات الصيدلية بنجاح");
+            renderAll();
+        }
+
+        function openPresetModal() {
+            document.getElementById('preset-modal').classList.remove('opacity-0', 'pointer-events-none');
+            resetPresetForm();
+        }
+
+        function closePresetModal() {
+            document.getElementById('preset-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').innerText = isError ? '✕' : '✓';
+            document.getElementById('toast-icon').className = isError ? 'text-rose-400 font-bold text-lg' : 'text-sky-400 font-bold text-lg';
+            
+            toast.classList.remove('translate-y-28', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-28', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
